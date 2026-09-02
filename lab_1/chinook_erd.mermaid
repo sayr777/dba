@@ -1,0 +1,109 @@
+erDiagram
+    artist ||--o{ album : "has"
+    album |o--o{ track : "contains"
+    genre |o--o{ track : "classifies"
+    media_type ||--o{ track : "encodes"
+    employee |o--o{ employee : "reports_to"
+    employee |o--o{ customer : "supports"
+    customer ||--o{ invoice : "places"
+    invoice ||--o{ invoice_line : "has"
+    track ||--o{ invoice_line : "sold_in"
+    playlist ||--o{ playlist_track : "includes"
+    track ||--o{ playlist_track : "listed_in"
+
+    artist {
+        int artist_id PK
+        varchar name
+    }
+
+    album {
+        int album_id PK
+        varchar title
+        int artist_id FK
+    }
+
+    track {
+        int track_id PK
+        varchar name
+        int album_id FK
+        int media_type_id FK
+        int genre_id FK
+        varchar composer
+        int milliseconds
+        int bytes
+        numeric unit_price
+    }
+
+    genre {
+        int genre_id PK
+        varchar name
+    }
+
+    media_type {
+        int media_type_id PK
+        varchar name
+    }
+
+    playlist {
+        int playlist_id PK
+        varchar name
+    }
+
+    playlist_track {
+        int playlist_id PK,FK
+        int track_id PK,FK
+    }
+
+    employee {
+        int employee_id PK
+        varchar last_name
+        varchar first_name
+        varchar title
+        int reports_to FK
+        timestamp birth_date
+        timestamp hire_date
+        varchar address
+        varchar city
+        varchar state
+        varchar country
+        varchar postal_code
+        varchar phone
+        varchar fax
+        varchar email
+    }
+
+    customer {
+        int customer_id PK
+        varchar first_name
+        varchar last_name
+        varchar company
+        varchar address
+        varchar city
+        varchar state
+        varchar country
+        varchar postal_code
+        varchar phone
+        varchar fax
+        varchar email
+        int support_rep_id FK
+    }
+
+    invoice {
+        int invoice_id PK
+        int customer_id FK
+        timestamp invoice_date
+        varchar billing_address
+        varchar billing_city
+        varchar billing_state
+        varchar billing_country
+        varchar billing_postal_code
+        numeric total
+    }
+
+    invoice_line {
+        int invoice_line_id PK
+        int invoice_id FK
+        int track_id FK
+        numeric unit_price
+        int quantity
+    }
