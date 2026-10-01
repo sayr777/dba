@@ -208,12 +208,7 @@ SHOW log_min_duration_statement;    -- должно показать 500ms
 ### 3.2. Создать «медленный» запрос
 
 ```sql
--- Искусственная нагрузка: запрос без индекса
-SELECT o.id, c.name, o.total_amount
-FROM   orders o
-JOIN   customers c ON o.customer_id = c.id
-WHERE  c.email LIKE '%example%'
-ORDER  BY o.total_amount DESC;
+SELECT pg_sleep(0.7), count(*) FROM orders;
 ```
 
 Найдите в лог-файле строку с этим запросом:
