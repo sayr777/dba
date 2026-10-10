@@ -48,7 +48,6 @@ $archive = "$backup\wal_archive"
 chcp 1251
 ```
 
-Пароль не вводить в каждой команде: файл `%APPDATA%\postgresql\pgpass.conf` или переменная `$env:PGPASSWORD` (только на учебном стенде).
 
 ---
 ### 0.1. Термины
