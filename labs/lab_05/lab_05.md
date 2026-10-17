@@ -22,9 +22,13 @@
 - Прочитана лек. 07.
 
 > **DBeaver и транзакции.** По умолчанию DBeaver работает в режиме auto-commit.
-> Для шагов 1.2–1.4 переключите редактор в режим **Manual Commit**
-> (кнопка на панели инструментов) или используйте `psql`.
-> Иначе транзакция завершится сразу и блокировка не возникнет.
+>
+> - Окна **2 и 3** (шаги 1.2–1.4) переключите в режим **Manual Commit** (кнопка на панели инструментов)
+>   или используйте `psql`. Иначе транзакция завершится сразу и блокировка не возникнет.
+> - Окно **1** (мониторинг) оставьте в режиме **auto-commit**. Внутри одной транзакции
+>   `pg_stat_activity` и счётчики `pg_stat_*` возвращают снимок и не меняются — вы увидите устаревшие данные.
+> - Каждое окно должно работать через **своё соединение**. В DBeaver это настройка по умолчанию
+>   («Open separate connection for each editor»). Проверьте: в запросе 1.1 должны быть разные `pid`.
 
 ---
 
@@ -117,7 +121,7 @@ WHERE  cardinality(pg_blocking_pids(blocked.pid)) > 0;
 
 | Функция | Что делает | Транзакция | Сессия |
 |---|---|---|---|
-| `pg_cancel_backend(pid)` | Прерывает **текущий запрос** процесса | Остаётся открытой (переходит в aborted) | Остаётся |
+| `pg_cancel_backend(pid)` | Прерывает **текущий запрос** процесса | Если запрос был — прерывается, блокировки снимаются, сессия ждёт `ROLLBACK`. Если запроса нет (`idle*`) — ничего не происходит | Остаётся |
 | `pg_terminate_backend(pid)` | Закрывает **сессию** | Откатывается, блокировки снимаются | Закрывается |
 
 Права: суперпользователь, член роли `pg_signal_backend` или владелец сессии (для своих процессов).
@@ -226,9 +230,11 @@ WHERE  relname = 'products';
 
 - `n_dead_tup` упал до 0 или близко к 0;
 - `last_vacuum` заполнен;
-- **размер таблицы почти не изменился**.
+- **размер таблицы не уменьшился или уменьшился незначительно**.
 
-Обычный VACUUM помечает место мёртвых строк как свободное для повторного использования, но файл таблицы не уменьшает.
+Обычный VACUUM помечает место мёртвых строк как свободное для повторного использования.
+Файл он уменьшает только на полностью пустые страницы в самом конце таблицы.
+Актуальные версии строк после цикла UPDATE лежат как раз в конце файла, поэтому отрезать почти нечего.
 Вернуть место операционной системе может только `VACUUM FULL` (блокирует таблицу целиком) или расширение `pg_repack`.
 
 ```sql
@@ -282,7 +288,8 @@ WHERE  datname = 'eshop';
 SHOW config_file;          -- путь к postgresql.conf
 SHOW data_directory;       -- каталог данных
 SHOW logging_collector;    -- на Windows обычно уже on
-SELECT pg_current_logfile();  -- текущий лог-файл (путь относительно data_directory)
+SELECT pg_current_logfile();  -- текущий лог-файл (путь относительно data_directory);
+                              -- NULL, если logging_collector = off
 ```
 
 ### 3.2. Параметры в postgresql.conf
@@ -325,13 +332,18 @@ SHOW log_min_duration_statement;    -- должно показать 500ms
 SHOW log_lock_waits;                -- on
 ```
 
-Если значение не изменилось, проверьте ошибки в файле:
+Если значение не изменилось, проверьте, что прочитал сервер:
 
 ```sql
-SELECT name, setting, error
+SELECT sourcefile, name, setting, applied, error
 FROM   pg_file_settings
-WHERE  error IS NOT NULL;
+WHERE  name IN ('logging_collector', 'log_min_duration_statement', 'log_lock_waits')
+   OR  error IS NOT NULL;
 ```
+
+- `error` не пустой — опечатка в `postgresql.conf`.
+- `applied = false` и есть строка из `postgresql.auto.conf` — значение когда-то задали через `ALTER SYSTEM`,
+  и оно перекрывает `postgresql.conf`. Удалите его: `ALTER SYSTEM RESET <параметр>;` и снова `pg_reload_conf()`.
 
 ### 3.3. Создать «медленный» запрос и найти его в логе
 
@@ -339,7 +351,7 @@ WHERE  error IS NOT NULL;
 SELECT pg_sleep(0.7), count(*) FROM orders;
 ```
 
-В PowerShell:
+В PowerShell **от имени администратора** (каталог данных закрыт для обычных пользователей):
 
 ```powershell
 $logDir = "C:\Program Files\PostgreSQL\18\data\log"   # подставьте data_directory из 3.1
@@ -411,7 +423,7 @@ Get-ChildItem $logDir | Sort-Object LastWriteTime -Descending | Select-Object -F
 - [ ] Блокировка смоделирована: запрос из 1.3 показал `blocker_pid` в состоянии `idle in transaction`.
 - [ ] Показано, что `pg_cancel_backend` на блокировщике **не** снимает блокировку, и объяснено почему.
 - [ ] Блокировка снята через `ROLLBACK` или `pg_terminate_backend`.
-- [ ] Мёртвые строки созданы и убраны `VACUUM ANALYZE products`; зафиксировано, что размер таблицы уменьшил только `VACUUM FULL`.
+- [ ] Мёртвые строки созданы и убраны `VACUUM ANALYZE products`; размеры до и после `VACUUM` и `VACUUM FULL` записаны и объяснены.
 - [ ] `log_min_duration_statement = 500ms` применён; медленный запрос найден в логе.
 - [ ] `db_health_report.md` заполнен числами.
 
@@ -420,7 +432,7 @@ Get-ChildItem $logDir | Sort-Object LastWriteTime -Descending | Select-Object -F
 ## Самостоятельное задание
 
 1. Напишите SQL-запрос, который выводит топ-5 таблиц по доле мёртвых строк.
-2. Проверьте, что `log_lock_waits = on`. Создайте блокировку (шаги 1.2–1.3) и подождите не меньше 2 секунд:
+2. Проверьте, что `log_lock_waits = on` (в PostgreSQL 18 по умолчанию `off`). Создайте блокировку (шаги 1.2–1.3) и подождите не меньше 2 секунд:
    запись появится после `deadlock_timeout` (по умолчанию 1 с). Снимите блокировку и найдите в логе строку
    со словами `still waiting for`.
 3. Объясните: что означает `wait_event_type = 'Lock'` в `pg_stat_activity`? Чем отличается от `LWLock` и `IO`?
