@@ -106,9 +106,9 @@ EXPLAIN (ANALYZE, BUFFERS)
 SELECT * FROM orders WHERE status = 'pending';
 ```
  
-Запишите: тип узла = ___, `actual time` = ___ ms, `Buffers: shared hit` = ___
+Запишите: тип узла = ___, `Execution Time` = ___ ms, `Buffers: shared hit` = ___, `Rows Removed by Filter` = ___
  
-Ожидаемо: `Seq Scan` или `Parallel Seq Scan` с `Rows Removed by Filter` ≈ 196 000 — прочитана вся таблица ради 2 % строк.
+Ожидаемо: `Seq Scan`  с `Rows Removed by Filter` ≈ 196 000 — прочитана вся таблица ради 2 % строк.
  
 ### 1.2. Обычный B-tree индекс
  
@@ -121,7 +121,7 @@ SELECT * FROM orders WHERE status = 'pending';
 SELECT pg_size_pretty(pg_relation_size('idx_orders_status')) AS size_full;
 ```
  
-Тип узла теперь: ___, `actual time` = ___ ms, Buffers = ___. Размер индекса: ___
+Тип узла теперь: ___, `Execution Time` = ___ ms, Buffers = ___. Размер индекса: ___
  
 Скорее всего, вы увидите **Bitmap Heap Scan** с вложенным **Bitmap Index Scan**, а не Index Scan:
  
