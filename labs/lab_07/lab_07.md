@@ -28,7 +28,7 @@
 ## Предварительные требования
 
 - Завершена лаб. 06: база наполнена (20 000 / 1 000 / 200 000 / 600 000 строк), индексы из п. 2.4 созданы, `pg_stat_statements` подключён.
-- Прочитана лек. 09.
+- Прочитана [Лек. 09 — Оптимизация производительности. Индексы. Connection Pooling](../../lectures/lec_09/lec_09.md).
 - Роль `app_backend` из лаб. 02 существует (пароль `backend_pass_2024`). Через роль `eshop_app` у неё есть `SELECT` на `orders`.
 - Части 0–2 выполняются под `postgres` в базе `eshop`, часть 3 — под `app_backend`.
 
@@ -590,41 +590,60 @@ VACUUM (ANALYZE, VERBOSE) orders;
 
 ### 3.1. Установка
 
-**Основной способ — Stack Builder (сборка EDB):**
+> **Обратите внимание.** Загрузка через Stack Builder / EnterpriseDB на многих компьютерах блокируется (ошибка HTTP `403 Forbidden` через CloudFront) или зависает на этапе подключения к серверу. 
+> Поэтому рекомендуется **прямая установка официальной сборки с GitHub Releases**.
+
+**Основной способ — официальный релиз с GitHub (рекомендуется):**
+
+Выполните в PowerShell (скачивание и распаковка в `C:\pgbouncer`):
+
+```powershell
+$zip = "$env:TEMP\pgbouncer.zip"
+curl.exe -L -o $zip "https://github.com/pgbouncer/pgbouncer/releases/download/pgbouncer_1_26_1/pgbouncer-1.26.1-windows-x86_64.zip"
+Expand-Archive -Path $zip -DestinationPath "$env:TEMP\pgbouncer" -Force
+New-Item -ItemType Directory -Path "C:\pgbouncer" -Force
+Copy-Item -Path "$env:TEMP\pgbouncer\pgbouncer-*\*" -Destination "C:\pgbouncer" -Recurse -Force
+```
+
+Убедитесь, что файлы на месте:
+
+```powershell
+Get-ChildItem C:\pgbouncer
+& "C:\pgbouncer\pgbouncer.exe" --version
+```
+
+<details>
+<summary>Альтернативный способ — через Stack Builder (если доступ к серверам EDB не заблокирован)</summary>
 
 1. Пуск → PostgreSQL 18 → **Application Stack Builder** (от имени администратора).
 2. Выберите сервер `PostgreSQL 18 on port 5432`.
 3. Раздел **Add-ons, tools and utilities** → **pgBouncer**.
 4. В мастере укажите: хост `localhost`, роль `postgres`, её пароль, порт PostgreSQL `5432`, порт PgBouncer `6432`.
+5. Найдите путь к `pgbouncer.ini`:
+   ```powershell
+   Get-ChildItem "C:\Program Files", "C:\Program Files (x86)" -Recurse -Filter pgbouncer.ini -ErrorAction SilentlyContinue | Select-Object FullName
+   ```
+</details>
 
-Если в Stack Builder нет пакета для PG 18, скачайте установщик EDB PgBouncer с сайта EnterpriseDB и запустите его от имени администратора.
-
-**Найдите файлы конфигурации и службу:**
-
-```powershell
-Get-ChildItem "C:\Program Files", "C:\Program Files (x86)" -Recurse -Filter pgbouncer.ini `
-    -ErrorAction SilentlyContinue | Select-Object FullName
-
-Get-Service *bouncer*
-```
-
-Запишите: путь к `pgbouncer.ini` = ___, имя службы = ___
+Каталог установки: **`C:\pgbouncer`**  
+Конфигурационный файл: **`C:\pgbouncer\pgbouncer.ini`**
 
 ### 3.2. Настройка pgbouncer.ini
 
-Откройте `pgbouncer.ini` в редакторе **от имени администратора**.
-Установщик уже записал пути к лог-файлу и рабочему каталогу — их не меняйте. Задайте или измените параметры:
+Создайте или перезапишите файл `C:\pgbouncer\pgbouncer.ini` одной командой в PowerShell:
 
-```ini
+```powershell
+@'
 [databases]
 eshop = host=127.0.0.1 port=5432 dbname=eshop
 
 [pgbouncer]
+logfile              = C:\pgbouncer\pgbouncer.log
+pidfile              = C:\pgbouncer\pgbouncer.pid
 listen_addr          = 127.0.0.1
 listen_port          = 6432
 auth_type            = scram-sha-256
-; полный путь к userlist.txt рядом с pgbouncer.ini
-auth_file            = <каталог pgbouncer.ini>\userlist.txt
+auth_file            = C:\pgbouncer\userlist.txt
 
 pool_mode            = transaction
 max_client_conn      = 200
@@ -638,13 +657,14 @@ reserve_pool_timeout = 5
 ignore_startup_parameters = extra_float_digits
 
 ; Подготовленные запросы на уровне протокола (драйверы JDBC, Npgsql); по умолчанию 200 с PgBouncer 1.24
-max_prepared_statements = 200
+max_prepared_statements  = 200
 
 log_connections      = 1
 log_disconnections   = 1
 
 ; Административная консоль
 admin_users          = pgbouncer_admin
+'@ | Set-Content -Path "C:\pgbouncer\pgbouncer.ini" -Encoding ascii
 ```
 
 | Параметр | Значение |
@@ -654,9 +674,7 @@ admin_users          = pgbouncer_admin
 | `default_pool_size = 10` | Сколько реальных соединений к PostgreSQL на пару «база + пользователь» |
 | `reserve_pool_size = 5` | Дополнительные соединения, если клиент ждёт дольше `reserve_pool_timeout` секунд |
 
-> Параметр `pidfile` и ключ запуска `-d` на Windows не используются: PgBouncer работает как служба.
-
-### 3.3. Файл пользователей userlist.txt
+### 3.3. Файл пользователей userlist.txt и запуск
 
 PgBouncer сам проверяет пароль клиента. Для этого ему нужен список пользователей и хэшей паролей.
 
@@ -669,34 +687,50 @@ WHERE  rolname = 'app_backend';
 ```
 
 Строка должна начинаться так: `"app_backend" "SCRAM-SHA-256$4096:…"`.
-Если хэш начинается с `md5`, пароль задан в старом формате. Задайте пароль заново: `ALTER ROLE app_backend PASSWORD '…';`
+Если хэш начинается с `md5`, пароль задан в старом формате. Задайте пароль заново: `ALTER ROLE app_backend PASSWORD 'backend_pass_2024';`
 
-**Шаг 2. Создать `userlist.txt` в каталоге `pgbouncer.ini`** (PowerShell от имени администратора):
+**Шаг 2. Создать `userlist.txt` в каталоге `C:\pgbouncer`:**
+
+Выполните в PowerShell (подставьте полученную строку со SCRAM-хэшем):
 
 ```powershell
-$dir = "<каталог pgbouncer.ini>"
 @(
     '"app_backend" "SCRAM-SHA-256$4096:...вставьте строку целиком..."'
     '"pgbouncer_admin" "admin_pass"'
-) | Set-Content -Path "$dir\userlist.txt" -Encoding ascii
+) | Set-Content -Path "C:\pgbouncer\userlist.txt" -Encoding ascii
 ```
 
 > **Кодировка.** В Windows PowerShell 5.1 `-Encoding utf8` записывает метку BOM в начало файла.
 > PgBouncer не распознаёт первую строку с BOM, и пользователь `app_backend` «не существует».
-> Используйте `-Encoding ascii` или Блокнот (UTF-8 без BOM).
+> Всегда используйте `-Encoding ascii` или сохраняйте через Блокнот в кодировке UTF-8 без BOM.
 >
 > Строку с хэшем берите в **одинарные** кавычки: в двойных PowerShell подставит переменные вместо `$4096` и т. п.
 
 Пароль `pgbouncer_admin` хранится открытым текстом. Это допустимо только в учебной среде.
 
-**Шаг 3. Перезапустить службу:**
+**Шаг 3. Запуск PgBouncer**
 
+Выберите один из двух способов запуска:
+
+* **Вариант А. Служба Windows (требует запуска PowerShell от имени Администратора):**
+  ```powershell
+  & "C:\pgbouncer\pgbouncer.exe" --regservice "C:\pgbouncer\pgbouncer.ini"
+  Start-Service pgbouncer
+  Get-Service pgbouncer     # Status = Running
+  ```
+  *(Если потребуется перезапустить службу после изменений в конфиге: `Restart-Service pgbouncer`)*
+
+* **Вариант Б. Фоновый процесс (не требует прав администратора):**
+  ```powershell
+  Start-Process "C:\pgbouncer\pgbouncer.exe" "C:\pgbouncer\pgbouncer.ini" -WindowStyle Hidden
+  Get-Process pgbouncer     # убедиться, что процесс pgbouncer запущен
+  ```
+  *(Если потребуется перезапустить процесс: `Stop-Process -Name pgbouncer -Force`, затем выполнить `Start-Process` заново)*
+
+Если PgBouncer не стартует, проверьте лог-файл:
 ```powershell
-Restart-Service <имя службы из 3.1>
-Get-Service <имя службы из 3.1>     # Status = Running
+Get-Content "C:\pgbouncer\pgbouncer.log" -Tail 20
 ```
-
-Если служба не запустилась, смотрите лог-файл PgBouncer (путь `logfile` в `pgbouncer.ini`).
 
 ### 3.4. Архитектура
 
@@ -935,4 +969,6 @@ COMMIT;
 - pgbench: https://www.postgresql.org/docs/current/pgbench.html
 - PgBouncer, настройки: https://www.pgbouncer.org/config.html
 - PgBouncer, ограничения режимов: https://www.pgbouncer.org/features.html
+- Релизы PgBouncer (включая Windows x86_64): https://github.com/pgbouncer/pgbouncer/releases
 - EDB PgBouncer для Windows: https://www.enterprisedb.com/docs/pgbouncer/1/installing/windows/
+- Установка PgBouncer (Windows): [wiki/tools/pgbouncer.md](../../wiki/tools/pgbouncer.md)
