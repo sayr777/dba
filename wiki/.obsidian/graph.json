@@ -1,0 +1,22 @@
+{
+  "collapse-filter": false,
+  "search": "роли",
+  "showTags": true,
+  "showAttachments": true,
+  "hideUnresolved": true,
+  "showOrphans": true,
+  "collapse-color-groups": true,
+  "colorGroups": [],
+  "collapse-display": true,
+  "showArrow": true,
+  "textFadeMultiplier": -1.8,
+  "nodeSizeMultiplier": 1.0838243902439,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 105,
+  "scale": 1.4019828977760982,
+  "close": false
+}

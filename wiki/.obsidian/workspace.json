@@ -1,0 +1,230 @@
+{
+  "main": {
+    "id": "f27ec8c8b7248c20",
+    "type": "split",
+    "children": [
+      {
+        "id": "56a4bc7572f696c0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fe84f511eb58f381",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "3a8da2755fb3237a",
+    "type": "split",
+    "children": [
+      {
+        "id": "b781b4354ca7ce8c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "96640d37f884603b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "228587901cb0afa4",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "e6d1ddfc0857513a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "1879f2d9aec2b930",
+    "type": "split",
+    "children": [
+      {
+        "id": "ab052a2c4f906fbe",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2d97c789f907cf36",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "README.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки"
+            }
+          },
+          {
+            "id": "fc66731be66adcdb",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "README.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки"
+            }
+          },
+          {
+            "id": "d2208dfc92110781",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "e21487939317af80",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Все свойства"
+            }
+          },
+          {
+            "id": "eb5a4407354f156f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "README.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false
+    }
+  },
+  "active": "fe84f511eb58f381",
+  "lastOpenFiles": [
+    "concepts/bloat.md",
+    "concepts/n-plus-one.md",
+    "index.md.tmp.16328.b0870e371cec",
+    "concepts/normalization.md",
+    "concepts/normalization.md.tmp.16328.06c13c17ae74",
+    "schema.md",
+    "README.md",
+    "log.md",
+    "index.md",
+    "concepts/access-control-models.md",
+    "concepts/backup-recovery.md",
+    "cheatsheets/mermaid.md",
+    "cheatsheets/markdown.md",
+    "cheatsheets/git.md",
+    "concepts/wal-mvcc.md",
+    "concepts/wal-mvcc.md.tmp.16328.3194a96b181c",
+    "concepts/security.md.tmp.16328.ad99a4f66812",
+    "concepts/security.md",
+    "concepts/replication.md.tmp.16328.f8392e30c8ae",
+    "concepts/replication.md",
+    "concepts/postgresql-architecture.md",
+    "concepts/monitoring.md",
+    "concepts/indexes.md",
+    "concepts/connection-pooling.md",
+    "course/eshop-schema.md",
+    "procedures/zero-downtime.md",
+    "procedures/rollback-strategies.md",
+    "procedures/migration-workflow.md",
+    "procedures/failover-runbook.md",
+    "log.md.tmp.16328.024db00cdd68",
+    "artifacts/db-health-report.md.tmp.16328.9a0234510747",
+    "artifacts/deployment-runbook.md.tmp.16328.393b5d547656",
+    "artifacts/deployment-runbook.md.tmp.16328.1b8646f49332",
+    "artifacts/deployment-runbook.md.tmp.16328.83db04a3f4fc",
+    "labs/lab_02.md",
+    "roles/team-roles.md"
+  ]
+}
