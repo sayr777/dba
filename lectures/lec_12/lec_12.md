@@ -183,6 +183,8 @@ DROP INDEX CONCURRENTLY idx_orders_status;
 
 ---
 
+> **Практика →** [Лаб. 09 — Flyway: миграции схемы eshop. Migration Plan и Runbook](../../labs/lab_09/lab_09.md)
+
 ## 9. Итоги лекции
 
 После этой лекции студент умеет:

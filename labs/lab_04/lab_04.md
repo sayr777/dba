@@ -17,7 +17,13 @@
 ## Предварительные требования
 
 - Завершена лаб. 03: дампы и WAL-архив настроены.
-- Прочитана лек. 06.
+- Прочитана [Лек. 06 — Восстановление, PITR, Failover](../../lectures/lec_06/lec_06.md).
+
+> **Командная строка (PowerShell).** Задайте переменную пути один раз на сеанс:
+> ```powershell
+> $pg = "C:\Program Files\PostgreSQL\18\bin"
+> ```
+> Команды `pg_restore`, `createdb`, `dropdb`, `psql` в этой работе запускаются через PowerShell.
 
 ---
 
@@ -39,12 +45,9 @@ DROP TABLE order_items;
 
 ### 1.2. Выборочное восстановление одной таблицы
 
-```bash
+```powershell
 # Восстановить только order_items из custom-дампа
-pg_restore -h localhost -U postgres \
-    -d eshop \
-    -t order_items \
-    C:\backup\eshop\eshop_20240901.dump
+& "$pg\pg_restore.exe" -h localhost -U postgres -d eshop -t order_items C:\backup\eshop\<имя_вашего_дампа>.dump
 ```
 
 ```sql
@@ -54,15 +57,12 @@ SELECT COUNT(*) FROM order_items;    -- должно вернуть 4
 
 ### 1.3. Полное восстановление в новую базу
 
-```bash
+```powershell
 # Создать тестовую базу-приёмник
-createdb -h localhost -U postgres eshop_restore_test
+& "$pg\createdb.exe" -h localhost -U postgres eshop_restore_test
 
 # Восстановить полностью
-pg_restore -h localhost -U postgres \
-    -d eshop_restore_test \
-    -Fc C:\backup\eshop\eshop_20240901.dump \
-    --verbose
+& "$pg\pg_restore.exe" -h localhost -U postgres -d eshop_restore_test -Fc C:\backup\eshop\<имя_вашего_дампа>.dump --verbose
 ```
 
 ```sql
@@ -75,16 +75,16 @@ SELECT COUNT(*) FROM order_items;   -- 4
 
 ### 1.4. Типичные ошибки и решения
 
-```bash
+```powershell
 # Ошибка: "role does not exist"
 # Решение: сначала восстановить глобальные объекты
-psql -h localhost -U postgres -f C:\backup\eshop\globals.sql
+& "$pg\psql.exe" -h localhost -U postgres -f C:\backup\eshop\globals.sql
 
 # Ошибка: "database already exists"
-# Решение: использовать флаг --clean или пересоздать базу
-dropdb -h localhost -U postgres eshop_restore_test
-createdb -h localhost -U postgres eshop_restore_test
-pg_restore ... eshop_20240901.dump
+# Решение: пересоздать базу
+& "$pg\dropdb.exe"     -h localhost -U postgres eshop_restore_test
+& "$pg\createdb.exe"   -h localhost -U postgres eshop_restore_test
+& "$pg\pg_restore.exe" -h localhost -U postgres -d eshop_restore_test -Fc C:\backup\eshop\<имя_вашего_дампа>.dump
 ```
 
 ---
@@ -113,7 +113,7 @@ flowchart TD
 
 ---
 
-## Часть 2. Симуляция PITR
+## Часть 3. Симуляция PITR
 
 > Полный PITR с физическим перемещением PGDATA требует прав на уровне ОС и перезапуска PostgreSQL. На учебном стенде выполняем упрощённую симуляцию через логический дамп с меткой времени.
 
@@ -146,10 +146,8 @@ DROP DATABASE eshop_restore_test;
 CREATE DATABASE eshop_restore_test;
 ```
 
-```bash
-pg_restore -h localhost -U postgres \
-    -d eshop_restore_test \
-    -Fc C:\backup\eshop\eshop_20240901.dump
+```powershell
+& "$pg\pg_restore.exe" -h localhost -U postgres -d eshop_restore_test -Fc C:\backup\eshop\<имя_вашего_дампа>.dump
 ```
 
 ```sql

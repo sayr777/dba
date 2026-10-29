@@ -507,6 +507,8 @@ Get-ChildItem $logDir | Sort-Object LastWriteTime -Descending | Select-Object -F
 
 ---
 
+> **Практика →** [Лаб. 05 — Мониторинг базы eshop: pg_stat_*, блокировки](../../labs/lab_05/lab_05.md)
+
 ## 11. Итоги лекции
 
 После этой лекции студент умеет:

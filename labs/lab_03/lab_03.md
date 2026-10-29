@@ -18,7 +18,7 @@
 ## Предварительные требования
 
 - Завершена лаб. 02: база `eshop` создана с 4 таблицами и тестовыми данными.
-- Прочитана лек. 05.
+- Прочитана [Лек. 05 — Резервное копирование и восстановление](../../lectures/lec_05/lec_05.md).
 - Создана папка `C:\backup\eshop\` (Windows) или `~/backup/eshop/` (Linux).
 
 ---
@@ -44,14 +44,18 @@ flowchart LR
 
 ## Часть 1. Логический дамп: pg_dump
 
+> **Командная строка (PowerShell).** Утилиты `pg_dump`, `pg_restore`, `psql` находятся в каталоге `bin` PostgreSQL.
+> Задайте переменную один раз на сеанс PowerShell, чтобы не печатать полный путь каждый раз:
+> ```powershell
+> $pg = "C:\Program Files\PostgreSQL\18\bin"
+> ```
+> Далее в этой работе используйте `& "$pg\pg_dump.exe"` вместо `pg_dump`.
+
 ### 1.1. Plain-формат (читаемый SQL)
 
-```bash
-# Windows (из командной строки)
-pg_dump -h localhost -U postgres -Fp eshop -f C:\backup\eshop\eshop_plain.sql
-
-# Linux
-pg_dump -h localhost -U postgres -Fp eshop -f ~/backup/eshop/eshop_plain.sql
+```powershell
+# PowerShell (Windows)
+& "$pg\pg_dump.exe" -h localhost -U postgres -Fp eshop -f C:\backup\eshop\eshop_plain.sql
 ```
 
 Откройте файл в VS Code. Найдите:
@@ -60,34 +64,33 @@ pg_dump -h localhost -U postgres -Fp eshop -f ~/backup/eshop/eshop_plain.sql
 
 ### 1.2. Custom-формат (рекомендуемый)
 
-```bash
-pg_dump -h localhost -U postgres -Fc eshop \
-    -f C:\backup\eshop\eshop_$(date +%Y%m%d).dump
+```powershell
+$date = Get-Date -Format "yyyyMMdd"
+& "$pg\pg_dump.exe" -h localhost -U postgres -Fc eshop -f "C:\backup\eshop\eshop_$date.dump"
 ```
 
 Просмотрите содержимое без восстановления:
-```bash
-pg_restore --list C:\backup\eshop\eshop_20240901.dump
+```powershell
+& "$pg\pg_restore.exe" --list C:\backup\eshop\<имя_вашего_дампа>.dump
 ```
 
 ### 1.3. Дамп только схемы / только данных
 
-```bash
+```powershell
 # Только схема (без данных) — для документирования структуры
-pg_dump -h localhost -U postgres --schema-only eshop -f C:\backup\eshop\eshop_schema.sql
+& "$pg\pg_dump.exe" -h localhost -U postgres --schema-only eshop -f C:\backup\eshop\eshop_schema.sql
 
 # Только данные
-pg_dump -h localhost -U postgres --data-only eshop -f C:\backup\eshop\eshop_data.sql
+& "$pg\pg_dump.exe" -h localhost -U postgres --data-only eshop -f C:\backup\eshop\eshop_data.sql
 
 # Только одна таблица
-pg_dump -h localhost -U postgres -t orders eshop -f C:\backup\eshop\orders_only.sql
+& "$pg\pg_dump.exe" -h localhost -U postgres -t orders eshop -f C:\backup\eshop\orders_only.sql
 ```
 
 ### 1.4. Directory-формат с параллелизмом
 
-```bash
-pg_dump -h localhost -U postgres -Fd -j 4 eshop \
-    -f C:\backup\eshop\eshop_dir\
+```powershell
+& "$pg\pg_dump.exe" -h localhost -U postgres -Fd -j 4 eshop -f C:\backup\eshop\eshop_dir\
 ```
 
 Откройте папку — увидите отдельные файлы на каждую таблицу.
@@ -96,10 +99,9 @@ pg_dump -h localhost -U postgres -Fd -j 4 eshop \
 
 ## Часть 2. Дамп глобальных объектов: pg_dumpall
 
-```bash
+```powershell
 # Дамп ролей (не включается в pg_dump)
-pg_dumpall -h localhost -U postgres --globals-only \
-    -f C:\backup\eshop\globals.sql
+& "$pg\pg_dumpall.exe" -h localhost -U postgres --globals-only -f C:\backup\eshop\globals.sql
 ```
 
 Откройте `globals.sql` в VS Code. Найдите:
@@ -123,7 +125,8 @@ CREATE ROLE repl_user REPLICATION LOGIN PASSWORD 'repl_pass_2024';
 ```
 
 ```
--- Добавить в pg_hba.conf (файл в PGDATA):
+-- Добавить в pg_hba.conf:
+-- Windows: C:\Program Files\PostgreSQL\18\data\pg_hba.conf
 host    replication    repl_user    127.0.0.1/32    scram-sha-256
 ```
 
@@ -134,10 +137,10 @@ SELECT pg_reload_conf();
 
 ### 3.2. Снять физическую копию
 
-```bash
-pg_basebackup -h localhost -U repl_user \
-    -D C:\backup\eshop\basebackup\ \
-    -Fp -Xs -P
+```powershell
+& "$pg\pg_basebackup.exe" -h localhost -U repl_user -D C:\backup\eshop\basebackup\ -Fp -Xs -P
+# Директория basebackup\ должна НЕ существовать — pg_basebackup создаёт её сам.
+# Если папка уже есть: Remove-Item -Recurse -Force C:\backup\eshop\basebackup\
 ```
 
 Дождитесь завершения (прогресс-бар покажет % от объёма кластера).

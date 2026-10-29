@@ -1,6 +1,8 @@
 # Лекция 2. Установка и конфигурирование PostgreSQL. Локальная среда разработчика
 
 **Неделя:** 2
+**Версия PostgreSQL:** 18
+**Связанная лабораторная работа:** лаб. 01 «Установка PostgreSQL и DBeaver»
 
 ---
 
@@ -12,6 +14,14 @@
 - понимает структуру каталога PGDATA и назначение ключевых конфигурационных файлов;
 - умеет запустить/остановить сервер, подключиться через DBeaver и psql;
 - понимает, зачем аналитику локальная копия БД и как её поддерживать в актуальном состоянии.
+
+---
+
+## Зачем это системному аналитику
+
+Системный аналитик редко является администратором БД, но он обязан уметь поднять локальную среду — иначе невозможно проверить migration plan до отправки в review, воспроизвести баг в тестовой копии или написать runbook на основе реального поведения системы. «Работает на моей машине» не работает, если машина у каждого настроена по-разному.
+
+Понимание `pg_hba.conf` и конфигурационных файлов помогает аналитику самостоятельно разобраться, почему приложение не может подключиться к БД — вместо того чтобы ждать DBA часами. Знание `psql` позволяет быстро проверить состояние схемы или права пользователя без GUI.
 
 ---
 
@@ -230,15 +240,38 @@ sudo systemctl status postgresql
 sudo systemctl enable postgresql   # автозапуск при старте ОС
 ```
 
-### 5.3. Windows — Службы
+### 5.3. Windows — pg_ctl через PowerShell
 
-Службы → `postgresql-x64-17` → Запустить / Остановить / Перезапустить.  
-Или через командную строку (от администратора):
+```powershell
+$pg = "C:\Program Files\PostgreSQL\18\bin"
+$data = "C:\Program Files\PostgreSQL\18\data"
 
-```cmd
-net start postgresql-x64-17
-net stop  postgresql-x64-17
+# Статус
+& "$pg\pg_ctl.exe" status -D $data
+
+# Запустить / остановить / перезапустить
+& "$pg\pg_ctl.exe" start   -D $data
+& "$pg\pg_ctl.exe" stop    -D $data -m fast
+& "$pg\pg_ctl.exe" restart -D $data
+
+# Перечитать конфигурацию без перезапуска
+& "$pg\pg_ctl.exe" reload  -D $data
 ```
+
+Или через Службы: `services.msc` → `postgresql-x64-18` → Запустить / Остановить.
+
+**Упражнение:** вы изменили `work_mem` в `postgresql.conf` и запустили `pg_reload_conf()`. Изменился ли параметр?
+<details><summary>Ответ</summary>
+
+`work_mem` имеет контекст `user`, а не `postmaster` — значит, он применяется без перезапуска через `pg_reload_conf()`.
+
+Проверить:
+```sql
+SHOW work_mem;
+-- или:
+SELECT name, context FROM pg_settings WHERE name = 'work_mem';
+```
+</details>
 
 ---
 
@@ -353,6 +386,8 @@ psql -h localhost -U postgres -d mydb -f migration.sql
 
 ---
 
+> **Практика →** [Лаб. 01 — Установка PostgreSQL и DBeaver](../../labs/lab_01/lab_01.md)
+
 ## 9. Итоги лекции
 
 После этой лекции студент умеет:
@@ -366,6 +401,18 @@ psql -h localhost -U postgres -d mydb -f migration.sql
 
 ---
 
+## Контрольные вопросы
+
+1. Зачем системному аналитику локальная копия БД? Назовите три конкретных задачи.
+2. Чем `postgresql.conf` отличается от `pg_hba.conf`? Какой из них нужно изменить, чтобы разрешить подключение с нового IP-адреса?
+3. Какие параметры из `postgresql.conf` требуют **перезапуска** сервера, а не просто `pg_reload_conf()`? Как это проверить SQL-запросом?
+4. Что произойдёт, если добавить правило `host all all 0.0.0.0/0 trust` в конец `pg_hba.conf`?
+5. Почему нельзя использовать переменную окружения `PGPASSWORD` для передачи пароля в production-скриптах?
+6. Команда `flyway clean` уничтожает схему без подтверждения. Как защитить production-базу от случайного запуска?
+7. Что означает файл `postmaster.pid` в PGDATA? Что его отсутствие говорит о состоянии сервера?
+
+---
+
 ## Ссылки
 
 - Установка PostgreSQL (EDB): https://www.enterprisedb.com/docs/supported-open-source/postgresql/installing/
@@ -375,3 +422,7 @@ psql -h localhost -U postgres -d mydb -f migration.sql
 - Документация pg_ctl: https://www.postgresql.org/docs/current/app-pg-ctl.html
 - Документация psql: https://www.postgresql.org/docs/current/app-psql.html
 - DBeaver Community: https://dbeaver.io/download/
+
+**Wiki:**
+- [Архитектура PostgreSQL](../../wiki/concepts/postgresql-architecture.md)
+- [DBeaver](../../wiki/tools/dbeaver.md)

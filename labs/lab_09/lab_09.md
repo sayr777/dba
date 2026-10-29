@@ -17,8 +17,8 @@
 ## Предварительные требования
 
 - Завершена лаб. 02: база `eshop` с таблицами и ролями существует.
-- Прочитана лек. 12.
-- Установлен Flyway CLI (https://documentation.red-gate.com/fd/command-line-184127404.html).
+- Прочитана [Лек. 12 — Версионирование схемы БД. Flyway. Migration Plan. Runbook](../../lectures/lec_12/lec_12.md) (§2 Именование, §3 Конфигурация, §4 Команды, §7 Migration Plan).
+- Установлен Flyway CLI — см. [wiki/tools/flyway.md](../../wiki/tools/flyway.md).
 
 ---
 
@@ -40,20 +40,27 @@ stateDiagram-v2
 
 ## Часть 1. Установка и настройка Flyway
 
-### 1.1. Установка Flyway CLI
+### 1.1. Установка Flyway CLI (Windows)
 
-```bash
-# Linux
-wget -qO- https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-commandline/10.21.0/flyway-commandline-10.21.0-linux-x64.tar.gz | tar xvz
-sudo ln -s $(pwd)/flyway-10.21.0/flyway /usr/local/bin/flyway
+> **Командная строка (PowerShell).** Полная инструкция — [wiki/tools/flyway.md](../../wiki/tools/flyway.md). Краткие шаги:
 
-# Windows: скачать ZIP с сайта, распаковать, добавить папку в PATH
-```
-
-Проверка:
-```bash
-flyway --version
-```
+1. Скачайте ZIP последнего релиза Flyway CLI с сайта Red Gate:  
+   https://documentation.red-gate.com/fd/command-line-184127404.html  
+   (кнопка **Download** → Community → Windows ZIP)
+2. Распакуйте в `C:\tools\flyway-10` (или другой каталог без пробелов).
+3. Добавьте путь в `PATH` (PowerShell от имени администратора):
+   ```powershell
+   [Environment]::SetEnvironmentVariable(
+       "PATH",
+       [Environment]::GetEnvironmentVariable("PATH","Machine") + ";C:\tools\flyway-10",
+       "Machine"
+   )
+   ```
+4. Откройте **новое** окно PowerShell и проверьте:
+   ```powershell
+   flyway --version
+   ```
+5. Ожидаемый вывод: `Flyway Community Edition 10.x.x`.
 
 ### 1.2. Структура проекта
 
@@ -326,6 +333,7 @@ WHERE  version = '3';
 
 ## Ссылки
 
+- Установка Flyway (Windows): [wiki/tools/flyway.md](../../wiki/tools/flyway.md)
 - Flyway CLI: https://documentation.red-gate.com/fd/command-line-184127404.html
 - flyway.toml: https://documentation.red-gate.com/fd/toml-configuration-reference-338067175.html
 - Naming convention: https://documentation.red-gate.com/fd/migrations-184127470.html

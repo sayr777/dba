@@ -17,9 +17,15 @@
 ## Предварительные требования
 
 - Завершена лаб. 09: Flyway настроен, миграции V001–V004 применены.
-- Прочитана лек. 13.
+- Прочитана [Лек. 13 — Rollback-стратегии. Обслуживание БД. Управление изменениями](../../lectures/lec_13/lec_13.md) (§1 Стратегии отката, §2 Zero-downtime).
 
 ---
+
+> **Командная строка (PowerShell).** Задайте переменную пути один раз на сеанс:
+> ```powershell
+> $pg = "C:\Program Files\PostgreSQL\18\bin"
+> ```
+> Команды `psql`, `vacuumdb`, `reindexdb`, `pg_dump` в этой работе запускаются через PowerShell.
 
 ## Часть 1. Rollback: forward rollback
 
@@ -134,20 +140,19 @@ ALTER TABLE customers DROP COLUMN name;
 
 ### 2.3. CREATE INDEX CONCURRENTLY
 
-```bash
+> **Командная строка (PowerShell).**
+
+```powershell
 # Индекс на большой таблице без блокировки записи
-psql -h localhost -U postgres -d eshop -c "
-CREATE INDEX CONCURRENTLY idx_orders_total_amount ON orders(total_amount DESC);
-"
+& "$pg\psql.exe" -h localhost -U postgres -d eshop -c "CREATE INDEX CONCURRENTLY idx_orders_total_amount ON orders(total_amount DESC);"
 ```
 
 ```sql
 -- Проверить, что индекс VALID (не INVALID)
-SELECT indexname, indisvalid
-FROM   pg_indexes
-JOIN   pg_class ON relname = tablename
-JOIN   pg_index ON indexrelid = pg_class.oid
-WHERE  tablename = 'orders' AND indexrelname = 'idx_orders_total_amount';
+SELECT c.relname AS index_name, i.indisvalid
+FROM   pg_class c
+JOIN   pg_index i ON i.indexrelid = c.oid
+WHERE  c.relname = 'idx_orders_total_amount';
 -- indisvalid = true — всё хорошо
 
 -- Если indisvalid = false — удалить и пересоздать:
@@ -188,11 +193,12 @@ flowchart LR
 
 ### 3.1. Полная VACUUM + REINDEX
 
-```bash
-# Через утилиты (терминал)
-vacuumdb -h localhost -U postgres -d eshop --full --analyze --verbose
+> **Командная строка (PowerShell).**
 
-reindexdb -h localhost -U postgres -d eshop --concurrently --verbose
+```powershell
+& "$pg\vacuumdb.exe" -h localhost -U postgres -d eshop --full --analyze --verbose
+
+& "$pg\reindexdb.exe" -h localhost -U postgres -d eshop --concurrently --verbose
 ```
 
 ### 3.2. Статус всех миграций
@@ -205,9 +211,10 @@ flyway -configFiles=flyway.toml info
 
 ### 3.3. Итоговый слепок схемы
 
-```bash
-pg_dump -h localhost -U postgres --schema-only eshop \
-    -f eshop_final_schema.sql
+> **Командная строка (PowerShell).**
+
+```powershell
+& "$pg\pg_dump.exe" -h localhost -U postgres --schema-only eshop -f eshop_final_schema.sql
 ```
 
 ---

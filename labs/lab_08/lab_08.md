@@ -18,7 +18,7 @@
 ## Предварительные требования
 
 - Завершена лаб. 02: ролевая модель `eshop` создана.
-- Прочитана лек. 11.
+- Прочитана [Лек. 11 — Информационная безопасность на уровне БД. Аудит](../../lectures/lec_11/lec_11.md).
 
 ---
 
@@ -26,14 +26,27 @@
 
 ### 1.1. Установить расширение
 
-```bash
-# Linux (Debian/Ubuntu)
-apt-get install postgresql-17-pgaudit
+> **Командная строка (PowerShell).** Установка выполняется через EDB Stack Builder; для перезапуска службы используйте PowerShell.
 
-# После установки добавить в postgresql.conf:
-# shared_preload_libraries = 'pgaudit'
-# И перезапустить PostgreSQL
-```
+**Установка pgAudit через EDB Stack Builder (Windows):**
+
+1. Пуск → **PostgreSQL 18** → **Application Stack Builder** (от имени администратора).
+2. Выберите сервер **PostgreSQL 18 on port 5432**.
+3. Раздел **Add-ons, tools and utilities** → установите флажок **pgAudit 1.7 for PostgreSQL 18**.
+4. Следуйте мастеру; после завершения установки закройте Stack Builder.
+5. Проверьте текущее значение параметра (после lab_06 там уже `pg_stat_statements`):
+   ```sql
+   SHOW shared_preload_libraries;
+   ```
+   В `postgresql.conf` **добавьте `pgaudit` через запятую** к существующему значению:
+   ```ini
+   shared_preload_libraries = 'pg_stat_statements,pgaudit'
+   ```
+   > **Важно:** не заменяйте всю строку — иначе потеряете `pg_stat_statements`.
+6. Перезапустите службу PostgreSQL (PowerShell от имени администратора):
+   ```powershell
+   Restart-Service postgresql-x64-18
+   ```
 
 ```sql
 -- После перезапуска — создать расширение
@@ -68,12 +81,16 @@ DROP TABLE audit_test_table;
 ```
 
 Найдите в лог-файле строки с `AUDIT`:
-```bash
-# Linux
-grep "AUDIT" /var/log/postgresql/postgresql-$(date +%Y-%m-%d).log | tail -20
 
-# Windows
-findstr "AUDIT" "C:\Program Files\PostgreSQL\17\data\log\postgresql-2024-09-01.log"
+> **Командная строка (PowerShell).** Путь к папке логов — `C:\Program Files\PostgreSQL\18\data\log`.
+
+```powershell
+$logDir = "C:\Program Files\PostgreSQL\18\data\log"
+Get-ChildItem $logDir -Filter "postgresql-*.log" |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1 |
+    ForEach-Object { Select-String -Path $_.FullName -Pattern "AUDIT" } |
+    Select-Object -Last 20
 ```
 
 Пример строки аудита:
@@ -126,17 +143,33 @@ ssl_key_file  = 'server.key'
 
 Для учебного стенда можно создать самоподписанный сертификат:
 
-```bash
-# Linux
-openssl req -new -x509 -days 365 -nodes \
-    -out /etc/ssl/certs/pg_server.crt \
-    -keyout /etc/ssl/private/pg_server.key \
-    -subj "/CN=localhost"
+> **Командная строка (Git Bash / PowerShell).** Используйте один из вариантов ниже.
 
-cp /etc/ssl/certs/pg_server.crt $PGDATA/server.crt
-cp /etc/ssl/private/pg_server.key $PGDATA/server.key
-chmod 600 $PGDATA/server.key
-chown postgres:postgres $PGDATA/server.key
+**Вариант A — Git Bash (рекомендуется, если установлен Git for Windows):**
+
+```bash
+PGDATA="C:/Program Files/PostgreSQL/18/data"
+openssl req -new -x509 -days 365 -nodes \
+    -out "$PGDATA/server.crt" \
+    -keyout "$PGDATA/server.key" \
+    -subj "/CN=localhost"
+```
+
+**Вариант Б — PowerShell (без openssl):**
+
+```powershell
+$pgdata = "C:\Program Files\PostgreSQL\18\data"
+# Создать самоподписанный сертификат средствами Windows
+$cert = New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My" -NotAfter (Get-Date).AddDays(365)
+# Экспортировать в файлы PEM (требует OpenSSL или certutil)
+# Проще использовать Git Bash с openssl (Вариант A)
+```
+
+После создания файлов ограничьте права на закрытый ключ (PowerShell от имени администратора):
+
+```powershell
+$keyFile = "C:\Program Files\PostgreSQL\18\data\server.key"
+icacls $keyFile /inheritance:r /grant:r "NT AUTHORITY\NetworkService:(R)" /grant:r "BUILTIN\Administrators:(F)"
 ```
 
 ### 2.3. Принудительное использование SSL в pg_hba.conf
@@ -158,12 +191,16 @@ WHERE usename = 'app_backend';
 
 ### 2.4. Проверить через psql
 
-```bash
-psql "host=localhost dbname=eshop user=app_backend sslmode=require"
-# Должно подключиться без ошибок
+> **Командная строка (PowerShell).**
 
-psql "host=localhost dbname=eshop user=app_backend sslmode=disable"
+```powershell
+$pg = "C:\Program Files\PostgreSQL\18\bin"
+
+# Должно подключиться без ошибок
+& "$pg\psql.exe" "host=localhost dbname=eshop user=app_backend sslmode=require" -c "SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid();"
+
 # Должна быть ошибка: SSL required
+& "$pg\psql.exe" "host=localhost dbname=eshop user=app_backend sslmode=disable" -c "SELECT 1;"
 ```
 
 ---

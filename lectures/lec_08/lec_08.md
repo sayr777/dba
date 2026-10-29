@@ -435,6 +435,8 @@ ORDER  BY o.total_amount DESC;
 
 ---
 
+> **Практика →** [Лаб. 06 — Анализ запросов eshop: pg_stat_statements, EXPLAIN](../../labs/lab_06/lab_06.md)
+
 ## 8. Итоги лекции
 
 После этой лекции студент умеет:
