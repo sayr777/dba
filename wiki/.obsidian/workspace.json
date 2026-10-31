@@ -11,14 +11,10 @@
             "id": "fe84f511eb58f381",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "README.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "README"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Граф"
             }
           }
         ]
@@ -190,13 +186,27 @@
   },
   "active": "fe84f511eb58f381",
   "lastOpenFiles": [
+    "tools/pg-upgrade.md",
+    "concepts/audit.md",
+    "tools/pg-dump.md",
+    "tools/pg-basebackup.md",
+    "concepts/transaction-isolation.md",
+    "concepts/pitr.md",
+    "concepts/erd.md",
+    "concepts/privileges.md",
     "concepts/bloat.md",
+    "tools/psql.md",
+    "tools/pgbench.md",
+    "lectures/lec_09.md",
+    "lectures",
+    "labs/lab_07.md",
+    "labs",
+    "README.md",
     "concepts/n-plus-one.md",
     "index.md.tmp.16328.b0870e371cec",
     "concepts/normalization.md",
     "concepts/normalization.md.tmp.16328.06c13c17ae74",
     "schema.md",
-    "README.md",
     "log.md",
     "index.md",
     "concepts/access-control-models.md",
@@ -209,22 +219,8 @@
     "concepts/security.md.tmp.16328.ad99a4f66812",
     "concepts/security.md",
     "concepts/replication.md.tmp.16328.f8392e30c8ae",
-    "concepts/replication.md",
-    "concepts/postgresql-architecture.md",
-    "concepts/monitoring.md",
-    "concepts/indexes.md",
-    "concepts/connection-pooling.md",
-    "course/eshop-schema.md",
-    "procedures/zero-downtime.md",
-    "procedures/rollback-strategies.md",
-    "procedures/migration-workflow.md",
-    "procedures/failover-runbook.md",
     "log.md.tmp.16328.024db00cdd68",
     "artifacts/db-health-report.md.tmp.16328.9a0234510747",
-    "artifacts/deployment-runbook.md.tmp.16328.393b5d547656",
-    "artifacts/deployment-runbook.md.tmp.16328.1b8646f49332",
-    "artifacts/deployment-runbook.md.tmp.16328.83db04a3f4fc",
-    "labs/lab_02.md",
-    "roles/team-roles.md"
+    "artifacts/deployment-runbook.md.tmp.16328.393b5d547656"
   ]
 }

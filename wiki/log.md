@@ -4,6 +4,30 @@ Append-only. Add new entries at the top.
 
 ---
 
+## [2026-10-31] add | Полное лекторское изложение 10 лекций + 8 новых статей
+
+**Лекции (sources):**
+- `lec_01`–`lec_07`, `lec_11`–`lec_13` расширены из тезисов в полноценное лекторское изложение: вводные кейсы, разбор причин, пошаговые процедуры, типичные ошибки, контрольные вопросы.
+- Во все лекции добавлены ссылки на соответствующие лабораторные работы (`lab_01`–`lab_10`) и перекрёстные ссылки на wiki.
+
+**Новые концептуальные статьи (`concepts/`):**
+- `concepts/erd.md`: нотация Crow's Foot, кардинальность, чек-лист проверки ERD перед миграцией.
+- `concepts/privileges.md`: иерархия привилегий, GRANT/REVOKE, DEFAULT PRIVILEGES, владение, колонки.
+- `concepts/transaction-isolation.md`: уровни изоляции, аномалии, write skew, обработка `serialization_failure`.
+- `concepts/pitr.md`: требования, цели восстановления, LSN, timeline, отдельный экземпляр.
+- `concepts/audit.md`: pgAudit, категории событий, правила безопасного логирования.
+
+**Новые статьи по инструментам (`tools/`):**
+- `tools/pg-dump.md`: форматы, флаги, ограничения, проверка восстановления.
+- `tools/pg-basebackup.md`: физическая копия, standby, инкрементальные копии, восстановление.
+- `tools/pg-upgrade.md`: мажорное обновление, `--check`, расширения, альтернатива через логическую репликацию.
+
+**Служебные файлы:**
+- `glossary.md`: добавлены 14 терминов (archive_mode, checksum, Column-level privilege, DEFAULT PRIVILEGES, hostssl, log_line_prefix, log_statement, pg_upgrade, pg_waldump, Read Committed, Repeatable Read, Serializable, Timeline, Transaction isolation, USAGE, Write skew).
+- `index.md`: обновлены разделы Concepts и Tools.
+
+---
+
 ## [2026-10-29] add | Синхронизация с утверждённой РПД и добавление статей по новым технологиям
 
 **Интеграция с РПД:**

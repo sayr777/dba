@@ -1,9 +1,9 @@
 {
   "collapse-filter": false,
-  "search": "роли",
+  "search": "",
   "showTags": true,
   "showAttachments": true,
-  "hideUnresolved": true,
+  "hideUnresolved": false,
   "showOrphans": true,
   "collapse-color-groups": true,
   "colorGroups": [],
@@ -17,6 +17,6 @@
   "repelStrength": 10,
   "linkStrength": 1,
   "linkDistance": 105,
-  "scale": 1.4019828977760982,
+  "scale": 1.4019828977760973,
   "close": false
 }

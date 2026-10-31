@@ -13,7 +13,7 @@
 | 7    | [lec_07](lec_07/lec_07.md) | Мониторинг, сбор статистики, журналирование                             | pg_stat_activity, pg_stat_user_tables, pg_stat_bgwriter, cache hit ratio, log_min_duration_statement |
 | 8    | [lec_08](lec_08/lec_08.md) | Анализ медленных запросов: pg_stat_statements, EXPLAIN, pgBadger        | total_exec_time, Seq Scan, Index Scan, Batches, shared_blks_read, auto_explain                       |
 | 9    | [lec_09](lec_09/lec_09.md) | Оптимизация. Индексы. Connection Pooling. Обоснование модернизации ПАО  | B-tree, GIN, BRIN, partial index, autovacuum bloat, PgBouncer transaction mode                       |
-| 10   | [lec_10](lec_10/lec_10.md) | Отказоустойчивость и репликация PostgreSQL                              | SLA, MTBF, MTTR, streaming replication, replay_lag, hot standby, Patroni                             |
+| 10   | [lec_10](lec_10/lec_10.md) | Отказоустойчивость и репликация PostgreSQL. Высокая доступность (HA). Patroni | SLA, MTBF, MTTR, RTO, RPO, streaming replication, replay_lag, hot standby, Patroni, Split-Brain, pg_rewind |
 | 11   | [lec_11](lec_11/lec_11.md) | Информационная безопасность на уровне БД. Аудит                         | SQL-инъекция, pgAudit, session audit, TLS, hostssl, pg_crypto, 152-ФЗ                                |
 | 12   | [lec_12](lec_12/lec_12.md) | Версионирование схемы БД. Flyway. Migration Plan. Runbook               | V/U/R-файлы, двойное подчёркивание, flyway info/validate, cleanDisabled=true                         |
 | 13   | [lec_13](lec_13/lec_13.md) | Rollback-стратегии. Обслуживание БД. Управление изменениями. Итог курса | forward rollback, undo, PITR, zero-downtime, vacuumdb, pg_upgrade, NewSQL, pgvector                  |

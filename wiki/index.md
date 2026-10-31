@@ -13,6 +13,11 @@
 | [Replication](concepts/replication.md) | Streaming replication, logical replication, Patroni, failover |
 | [Security](concepts/security.md) | Roles, RLS, pg_hba.conf, pgAudit, TLS, pgcrypto, 152-ФЗ |
 | [Access Control Models](concepts/access-control-models.md) | DAC, RBAC, ABAC/RLS, MAC, ReBAC — теория и PostgreSQL-реализация |
+| [Привилегии](concepts/privileges.md) | Иерархия привилегий, GRANT/REVOKE, DEFAULT PRIVILEGES, колонки |
+| [Уровни изоляции](concepts/transaction-isolation.md) | Read Committed, Repeatable Read, Serializable, write skew |
+| [ERD](concepts/erd.md) | Crow's Foot, кардинальность, проверка схемы перед миграцией |
+| [Аудит](concepts/audit.md) | pgAudit, категории событий, безопасное логирование |
+| [PITR](concepts/pitr.md) | Цели восстановления, LSN, timeline, отдельный экземпляр |
 | [Normalization](concepts/normalization.md)                 | 1НФ–5НФ, BCNF, аномалии, денормализация, упражнение с ERD       |
 | [Monitoring](concepts/monitoring.md) | pg_stat_activity, pg_stat_user_tables, pg_stat_statements, pgBadger |
 | [Connection Pooling](concepts/connection-pooling.md) | PgBouncer modes, pool sizing, transaction mode limitations |
@@ -27,6 +32,9 @@
 | [psql](tools/psql.md) | CLI terminal: флаги подключения, метакоманды (\d, \l, \x), скрипты |
 | [DBeaver](tools/dbeaver.md) | GUI client: connections, auto-commit gotchas, EXPLAIN |
 | [Flyway](tools/flyway.md) | CLI migration tool: naming, commands, flyway.toml |
+| [pg_dump](tools/pg-dump.md) | Логический бэкап: форматы, флаги, выборочное восстановление |
+| [pg_basebackup](tools/pg-basebackup.md) | Физический бэкап кластера, standby, инкрементальные копии |
+| [pg_upgrade](tools/pg-upgrade.md) | Обновление мажорной версии: --check, расширения, downtime |
 | [PgBouncer](tools/pgbouncer.md) | Connection pooler: install, pgbouncer.ini, userlist.txt |
 | [pgbench](tools/pgbench.md) | Нагрузочное тестирование: TPS, latency, валидация пула соединений |
 | [pgBadger](tools/pgbadger.md) | Log analyser: setup, log_line_prefix, HTML reports |
