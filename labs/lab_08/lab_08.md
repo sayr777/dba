@@ -32,8 +32,10 @@
 
 1. Пуск → **PostgreSQL 18** → **Application Stack Builder** (от имени администратора).
 2. Выберите сервер **PostgreSQL 18 on port 5432**.
-3. Раздел **Add-ons, tools and utilities** → установите флажок **pgAudit 1.7 for PostgreSQL 18**.
+3. Раздел **Add-ons, tools and utilities** → установите флажок **pgAudit 18.x for PostgreSQL 18** (версия должна соответствовать мажорной версии PostgreSQL; `pgAudit 1.7` предназначен для PostgreSQL 15 и для PG 18 не подходит).
 4. Следуйте мастеру; после завершения установки закройте Stack Builder.
+
+> **Если Stack Builder недоступен.** На части учебных компьютеров загрузка через EDB блокируется (см. лаб. 07, установка PgBouncer). В этом случае возьмите офлайн-пакет `pgAudit 18.x for PostgreSQL 18` у преподавателя или установите его на машину заранее. Без файла `pgaudit.dll` в каталоге `lib` PostgreSQL команда `CREATE EXTENSION pgaudit` завершится ошибкой `could not open extension control file`.
 5. Проверьте текущее значение параметра (после lab_06 там уже `pg_stat_statements`):
    ```sql
    SHOW shared_preload_libraries;
@@ -50,7 +52,7 @@
 
 ```sql
 -- После перезапуска — создать расширение
-CREATE EXTENSION pgaudit;
+CREATE EXTENSION IF NOT EXISTS pgaudit;
 
 -- Проверить
 SELECT * FROM pg_extension WHERE extname = 'pgaudit';
@@ -61,7 +63,7 @@ SELECT * FROM pg_extension WHERE extname = 'pgaudit';
 В `postgresql.conf` добавьте:
 
 ```ini
-pgaudit.log = 'write, ddl, role'
+pgaudit.log = 'write,ddl,role'
 pgaudit.log_catalog = off
 pgaudit.log_relation = on
 pgaudit.log_statement_once = off
@@ -103,7 +105,8 @@ Get-ChildItem $logDir -Filter "postgresql-*.log" |
 Для аудита только конкретных таблиц (более гранулярно):
 
 ```sql
--- Создать роль-аудитор
+-- Создать роль-аудитор (повторный запуск лабораторной не должен падать)
+DROP ROLE IF EXISTS eshop_auditor;
 CREATE ROLE eshop_auditor;
 GRANT SELECT ON customers, orders TO eshop_auditor;
 
@@ -114,6 +117,10 @@ SET pgaudit.role = 'eshop_auditor';
 В `postgresql.conf`:
 ```ini
 pgaudit.role = 'eshop_auditor'
+```
+
+```sql
+SELECT pg_reload_conf();
 ```
 
 Теперь аудируются только обращения к `customers` и `orders`, независимо от пользователя.
@@ -172,22 +179,34 @@ $keyFile = "C:\Program Files\PostgreSQL\18\data\server.key"
 icacls $keyFile /inheritance:r /grant:r "NT AUTHORITY\NetworkService:(R)" /grant:r "BUILTIN\Administrators:(F)"
 ```
 
+> **Нужен перезапуск службы.** Параметры `ssl`, `ssl_cert_file`, `ssl_key_file` относятся к контексту `postmaster`: `pg_reload_conf()` их не применяет. После создания сертификата и прав перезапустите службу:
+> ```powershell
+> Restart-Service postgresql-x64-18
+> ```
+> Проверьте: `SHOW ssl;` должно вернуть `on`. В DBeaver выполните **Invalidate/Reconnect**: старое соединение остаётся без TLS, и `pg_stat_ssl` для него покажет `ssl = false`.
+
 ### 2.3. Принудительное использование SSL в pg_hba.conf
 
 ```
 # Заменить в pg_hba.conf (только SSL-соединения для app_backend):
-hostssl  eshop  app_backend  127.0.0.1/32  scram-sha-256
+# Обе строки должны стоять ВЫШЕ общего правила host all all 127.0.0.1/32 ...
+hostssl    eshop  app_backend  127.0.0.1/32  scram-sha-256
+hostnossl  eshop  app_backend  127.0.0.1/32  reject
 ```
+
+> **Порядок правил.** `pg_hba.conf` применяет **первое совпавшее** правило. Если выше уже есть `host eshop app_backend 127.0.0.1/32 ...`, оно сработает раньше и разрешит соединение без TLS. Строки `hostssl`/`hostnossl` поставьте **выше** любых `host`-правил для этой базы и пользователя (или удалите/закомментируйте старую строку `host`). Строка `hostnossl ... reject` нужна, чтобы `sslmode=disable` действительно получил отказ, а не прошёл по общему правилу.
 
 ```sql
 SELECT pg_reload_conf();
 
--- Проверить
+-- Проверить текущее (уже переподключённое) соединение
 SELECT ssl, usename FROM pg_stat_ssl
 JOIN pg_stat_activity USING (pid)
-WHERE usename = 'app_backend';
+WHERE pid = pg_backend_pid();
 -- ssl = true
 ```
+
+> Соединение `app_backend` проверяется в п. 2.4 — после того, как psql действительно подключится под этой ролью. В только что выполненном запросе строки `app_backend` нет: этот пользователь ещё не подключён.
 
 ### 2.4. Проверить через psql
 
@@ -197,10 +216,10 @@ WHERE usename = 'app_backend';
 $pg = "C:\Program Files\PostgreSQL\18\bin"
 
 # Должно подключиться без ошибок
-& "$pg\psql.exe" "host=localhost dbname=eshop user=app_backend sslmode=require" -c "SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid();"
+& "$pg\psql.exe" "host=127.0.0.1 dbname=eshop user=app_backend sslmode=require" -c "SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid();"
 
 # Должна быть ошибка: SSL required
-& "$pg\psql.exe" "host=localhost dbname=eshop user=app_backend sslmode=disable" -c "SELECT 1;"
+& "$pg\psql.exe" "host=127.0.0.1 dbname=eshop user=app_backend sslmode=disable" -c "SELECT 1;"
 ```
 
 ---
@@ -218,7 +237,13 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 В таблице `customers` поле `phone` хранит персональные данные. Добавим зашифрованное поле:
 
 ```sql
-ALTER TABLE customers ADD COLUMN phone_encrypted BYTEA;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS phone_encrypted BYTEA;
+
+-- В данных лаб. 06 телефон не заполнялся (вставлялись только name, email, region).
+-- Подготовим тестовые номера, иначе шифровать будет нечего.
+UPDATE customers
+SET    phone = '+7-900-' || lpad((id % 10000000)::text, 7, '0')
+WHERE  phone IS NULL;
 
 -- Шифровать телефон (симметричный ключ AES)
 UPDATE customers
@@ -247,10 +272,13 @@ UPDATE customers SET phone = '***';
 
 -- Аналитик видит маскированный phone
 SET ROLE analyst_ivanova;
+SET app.current_region = 'MSK';   -- без этого RLS-политика вернёт 0 строк
 SELECT name, phone, phone_encrypted FROM customers;
 -- phone_encrypted — байты, прочитать без ключа нельзя
 RESET ROLE;
 ```
+
+> **Почему нужен `SET app.current_region`.** В лаб. 02 включена RLS-политика `customers_by_region`, которая сравнивает `region` с `current_setting('app.current_region', true)`. Если параметр не задан, выражение равно `NULL`, и аналитик не увидит ни одной строки. Это не ошибка прав — это работающая защита.
 
 > **В production:** ключ шифрования хранится НЕ в SQL, а в Vault/HSM. Передаётся приложением при каждом запросе.
 

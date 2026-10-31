@@ -16,8 +16,8 @@
 
 ## Предварительные требования
 
-- Завершена лаб. 09: Flyway настроен, миграции V001–V004 применены.
-- Прочитана [Лек. 13 — Rollback-стратегии. Обслуживание БД. Управление изменениями](../../lectures/lec_13/lec_13.md) (§1 Стратегии отката, §2 Zero-downtime).
+- Завершена лаб. 09: Flyway настроен, миграции V002–V003 применены. V004 — самостоятельное задание, может отсутствовать.
+- Прочитана [Лек. 13 — Rollback-стратегии. Обслуживание БД. Управление изменениями](../../lectures/lec_13/lec_13.md) (§2 Стратегии отката, §3 Zero-downtime).
 
 ---
 
@@ -51,38 +51,56 @@ flyway -configFiles=flyway.toml info
 
 ### 1.2. Forward rollback (рекомендуемый подход)
 
-Вместо попытки «откатить» — пишем корректирующую миграцию:
+Вместо попытки «откатить» — выпускаем корректирующую миграцию. Но сначала нужно **убрать неудачную V005 из набора миграций**, иначе `migrate` снова попытается её выполнить и снова упадёт.
 
 Создайте `migrations/V006__fix_manager_id.sql`:
 
 ```sql
--- V006: исправляем V005 — добавить с DEFAULT и потом снять DEFAULT
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS manager_id INTEGER DEFAULT NULL;
--- Если V005 провалилась до ALTER TABLE — эта строка создаст колонку безопасно
--- Если V005 создала колонку с ошибкой — подправим состояние
+-- V006: исправляем V005 — добавляем колонку и заполняем её безопасно
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS manager_id INTEGER;
+
+-- 0 — служебное значение «менеджер не назначен»; в реальной схеме
+-- здесь должен быть FK на таблицу managers.
+UPDATE orders SET manager_id = 0 WHERE manager_id IS NULL;
+
+ALTER TABLE orders ALTER COLUMN manager_id SET NOT NULL;
 ```
 
-```bash
+```powershell
+# Команды выполняются из каталога проекта eshop-migrations
+# 1. Убедиться, что V005 упала и колонки manager_id нет
+flyway -configFiles=flyway.toml info
+& "$pg\psql.exe" -h localhost -U postgres -d eshop -c "SELECT column_name FROM information_schema.columns WHERE table_name='orders' AND column_name='manager_id';"
+
+# 2. Отозвать неудачную миграцию: переименовать файл, чтобы Flyway её не видел
+Rename-Item migrations\V005__bad_migration.sql migrations\V005__bad_migration.sql.bak -Force
+
+# 3. Удалить failed-запись из истории и применить V006
 flyway -configFiles=flyway.toml repair
 flyway -configFiles=flyway.toml migrate
 flyway -configFiles=flyway.toml info
-# V005 — Failed (помечена), V006 — Success
 ```
+
+> **Почему нельзя просто выполнить `repair` + `migrate`.** `repair` удаляет запись о неудаче, после чего `migrate` снова видит файл V005 и снова его выполняет. Пока V005 остаётся в каталоге миграций, перейти к V006 невозможно. Поэтому неудачную миграцию отзывают (переименовывают/удаляют), а исправление выпускают следующим номером.
+
+В истории должно быть: V005 отсутствует (или помечена `DELETED`), V006 — `Success`.
 
 ### 1.3. Undo-скрипт (альтернатива)
 
-Flyway Undo — только в Flyway Teams. Имитируем вручную:
+Flyway Undo — только в Flyway Teams. Альтернативный путь — откатить изменение вручную, если корректирующая миграция ещё не выпущена:
 
 ```sql
--- U005 (вручную): откат V005
+-- U005 (вручную): откат неудачной V005
 ALTER TABLE orders DROP COLUMN IF EXISTS manager_id;
 ```
 
 После выполнения undo-скрипта вручную:
+
 ```bash
 flyway -configFiles=flyway.toml repair
-# Помечает V005 как deleted
 ```
+
+> **Что делает `repair`.** Удаляет failed-запись из истории. Он не откатывает SQL и не исправляет данные. Если V005 уже добавила колонку, её нужно удалить вручную (как выше).
 
 ---
 
@@ -95,7 +113,7 @@ flyway -configFiles=flyway.toml repair
 **Задача:** добавить `orders.confirmed_at TIMESTAMPTZ NOT NULL`.
 
 ```sql
--- Шаг 1: добавить колонку с DEFAULT (мгновенно, не блокирует)
+-- Шаг 1: добавить колонку с DEFAULT (быстро, без перезаписи всех строк)
 ALTER TABLE orders ADD COLUMN confirmed_at TIMESTAMPTZ DEFAULT now();
 
 -- Шаг 2: заполнить существующие строки (в production — батчами)
@@ -130,13 +148,30 @@ UPDATE customers SET full_name = name;
 -- Шаг 3: добавить NOT NULL
 ALTER TABLE customers ALTER COLUMN full_name SET NOT NULL;
 
--- Шаг 4: убрать старую колонку (когда все клиенты перешли на full_name)
+-- Шаг 4: переключить зависимое представление с name на full_name
+-- (иначе DROP COLUMN name упадёт: представление orders_summary из лаб. 09
+--  зависит от старой колонки)
+CREATE OR REPLACE VIEW orders_summary AS
+SELECT c.full_name AS customer_name,
+       c.region,
+       o.status,
+       COUNT(*)            AS order_count,
+       SUM(o.total_amount) AS total_revenue
+FROM   customers c
+JOIN   orders o ON o.customer_id = c.id
+GROUP  BY c.full_name, c.region, o.status;
+
+-- Шаг 5: убрать старую колонку (когда все клиенты перешли на full_name)
 ALTER TABLE customers DROP COLUMN name;
 ```
 
 > **В production** шаги 3 и 4 выполняются в разных релизах: сначала оба столбца живут параллельно, приложение читает `full_name`, затем убирают `name`.
 
 Создайте миграцию `V008__rename_customer_name.sql`.
+
+> **Упрощение для учебной работы.** В одном файле V008 выполняются все шаги. В production шаги 3–5 выносят в отдельный релиз: приложение сначала переключают на `full_name`, убеждаются, что ошибок нет, и только потом удаляют `name`.
+>
+> **Не забудьте про R__-миграцию.** В `R__orders_summary_view.sql` из лаб. 09 остаётся `c.name`. После V008 представление в базе уже использует `full_name` (иначе `DROP COLUMN name` упал бы). Если позже вы измените R__-файл и Flyway перезапустит его, старый текст с `c.name` упадёт. Обновите файл R__ на `c.full_name` в том же релизе.
 
 ### 2.3. CREATE INDEX CONCURRENTLY
 
@@ -179,13 +214,13 @@ flowchart LR
     D3 -.->|заменить на| S3
 ```
 
-| Операция               | Опасный способ          | Zero-downtime способ                         |
-|------------------------|-------------------------|----------------------------------------------|
-| ADD NOT NULL column    | Один ALTER TABLE        | ADD + UPDATE + SET NOT NULL (3 шага)         |
-| RENAME COLUMN          | ALTER TABLE RENAME      | ADD + FILL + NOT NULL + DROP (2 релиза)      |
-| CREATE INDEX           | CREATE INDEX            | CREATE INDEX CONCURRENTLY                    |
-| DROP TABLE             | DROP TABLE              | RENAME → убрать FK → DROP (3 релиза)         |
-| Изменить тип колонки   | ALTER COLUMN TYPE       | ADD + migrate + DROP (контролируемая пауза)  |
+| Операция                 | Опасный способ            | Zero-downtime способ                           |
+| ------------------------ | ------------------------- | ---------------------------------------------- |
+| ADD NOT NULL column      | Один ALTER TABLE          | ADD + UPDATE + SET NOT NULL (3 шага)           |
+| RENAME COLUMN            | ALTER TABLE RENAME        | ADD + FILL + NOT NULL + DROP (2 релиза)        |
+| CREATE INDEX             | CREATE INDEX              | CREATE INDEX CONCURRENTLY                      |
+| DROP TABLE               | DROP TABLE                | RENAME → убрать FK → DROP (3 релиза)           |
+| Изменить тип колонки     | ALTER COLUMN TYPE         | ADD + migrate + DROP (контролируемая пауза)    |
 
 ---
 
@@ -193,7 +228,7 @@ flowchart LR
 
 ### 3.1. Полная VACUUM + REINDEX
 
-> **Командная строка (PowerShell).**
+> **Командная строка (PowerShell).** Перед `VACUUM FULL` закройте все окна DBeaver/psql, подключённые к `eshop`: команда требует `ACCESS EXCLUSIVE` и не начнётся, пока есть другие сессии.
 
 ```powershell
 & "$pg\vacuumdb.exe" -h localhost -U postgres -d eshop --full --analyze --verbose
@@ -290,10 +325,10 @@ flyway -configFiles=flyway.toml info
 
 ## Чек-лист «работа зачтена»
 
-- [ ] V007 (ADD NOT NULL) и V008 (RENAME COLUMN) — applied, Success.
+- [ ] V006–V008 (исправление, ADD NOT NULL, RENAME COLUMN) — applied, Success; V005 отозвана.
 - [ ] `idx_orders_total_amount` создан CONCURRENTLY; `indisvalid = true`.
 - [ ] `vacuumdb --full` выполнен; `reindexdb --concurrently` выполнен.
-- [ ] `flyway info` — все миграции V001–V008 Applied/Success.
+- [ ] `flyway info` — все актуальные миграции Applied/Success; failed-записей нет.
 - [ ] `eshop_project_report.md` — все разделы заполнены.
 - [ ] Устная защита: ответы на 3 вопроса преподавателя.
 

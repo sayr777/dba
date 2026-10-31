@@ -17,7 +17,7 @@
 ## Предварительные требования
 
 - Завершена лаб. 02: база `eshop` с таблицами и ролями существует.
-- Прочитана [Лек. 12 — Версионирование схемы БД. Flyway. Migration Plan. Runbook](../../lectures/lec_12/lec_12.md) (§2 Именование, §3 Конфигурация, §4 Команды, §7 Migration Plan).
+- Прочитана [Лек. 12 — Версионирование схемы БД. Flyway. Migration Plan. Runbook](../../lectures/lec_12/lec_12.md) (§3 Именование, §4 Конфигурация, §5 Команды, §8 Migration Plan).
 - Установлен Flyway CLI — см. [wiki/tools/flyway.md](../../wiki/tools/flyway.md).
 
 ---
@@ -60,7 +60,7 @@ stateDiagram-v2
    ```powershell
    flyway --version
    ```
-5. Ожидаемый вывод: `Flyway Community Edition 10.x.x`.
+5. Ожидаемый вывод: `Flyway Community Edition 10.x.x` (в курсе проверена ветка 10.x). Если установилась версия 11 или новее, синтаксис `flyway.toml` и команды из этой работы сохраняются; при расхождениях сверяйтесь с [wiki/tools/flyway.md](../../wiki/tools/flyway.md).
 
 ### 1.2. Структура проекта
 
@@ -70,10 +70,22 @@ stateDiagram-v2
 eshop-migrations/
 ├── flyway.toml
 └── migrations/
-    ├── V001__create_schema.sql
     ├── V002__add_products_category.sql
     └── V003__create_promo_codes.sql
 ```
+
+> **Почему нет `V001`.** Существующая схема `eshop` фиксируется командой `baseline -baselineVersion=1`: Flyway создаёт запись версии 1 и считает всё до неё уже применённым. Отдельный файл `V001__create_schema.sql` в этом сценарии не нужен (и не должен применяться).
+
+> **Повторный запуск лабораторной.** Если `categories`, `promo_codes` или `flyway_schema_history` уже существуют с прошлого раза, baseline/migrate упадут. Верните схему в исходное состояние (при закрытых соединениях):
+> ```sql
+> DROP TABLE IF EXISTS flyway_schema_history;
+> ALTER TABLE products DROP COLUMN IF EXISTS category_id;
+> DROP TABLE IF EXISTS categories CASCADE;
+> ALTER TABLE orders DROP COLUMN IF EXISTS promo_code_id;
+> DROP TABLE IF EXISTS promo_codes CASCADE;
+> DROP VIEW IF EXISTS orders_summary;
+> ```
+> После этого повторите baseline и миграции.
 
 ### 1.3. flyway.toml
 
@@ -90,11 +102,11 @@ validateOnMigrate = true
 outOfOrder       = false
 ```
 
-> `cleanDisabled = true` обязателен в production: защита от случайного `flyway clean`, который удалит все данные.
+> `cleanDisabled = true` обязателен в production: защита от случайного `flyway clean`, который удалит все данные. Замените `your_postgres_password` на пароль роли `postgres`; не коммитьте реальный пароль в git.
 
 ---
 
-## Часть 2. Миграция V001: фиксируем существующую схему
+## Часть 2. Baseline: фиксируем существующую схему
 
 Так как схема уже существует, используем `baseline` — говорим Flyway: «всё до этой версии уже есть».
 
@@ -129,9 +141,15 @@ INSERT INTO categories (name) VALUES
 
 ALTER TABLE products ADD COLUMN category_id INTEGER REFERENCES categories(id);
 
-UPDATE products SET category_id = 1 WHERE name = 'Ноутбук';
-UPDATE products SET category_id = 2 WHERE name = 'Мышь';
-UPDATE products SET category_id = 2 WHERE name = 'Клавиатура';
+-- Категория по цене: работает и для 3 товаров из лаб. 02,
+-- и для 1000 товаров после перенаполнения в лаб. 06.
+-- Так миграция не зависит от конкретных названий товаров.
+UPDATE products SET category_id = CASE
+    WHEN price >= 5000 THEN 1   -- Электроника
+    WHEN price >= 1000 THEN 2   -- Периферия
+    ELSE 3                       -- Аксессуары
+END
+WHERE category_id IS NULL;
 
 COMMENT ON TABLE categories IS 'Категории товаров';
 ```
@@ -151,7 +169,14 @@ flyway -configFiles=flyway.toml info
 -- Убедиться, что таблица создана и данные на месте
 SELECT p.name, c.name AS category
 FROM   products p
-JOIN   categories c ON c.id = p.category_id;
+JOIN   categories c ON c.id = p.category_id
+ORDER  BY p.id
+LIMIT  10;
+
+-- Ни один товар не остался без категории
+SELECT count(*) AS products_without_category
+FROM   products
+WHERE  category_id IS NULL;   -- ожидается 0
 ```
 
 ### 2.3. Вторая миграция: промокоды
@@ -225,12 +250,14 @@ flyway -configFiles=flyway.toml validate
 
 **Вывод:** миграции после применения НЕЛЬЗЯ редактировать. Верните исходный файл.
 
-### 3.3. Repair: восстановить после сбоя
+### 3.3. Repair: привести в порядок историю после сбоя
 
 ```bash
-# Если миграция выполнилась частично (interrupted) — repair помечает её как failed
+# Если миграция упала, в flyway_schema_history осталась строка success = false
 flyway -configFiles=flyway.toml repair
 ```
+
+> **Что делает `repair`.** Удаляет записи о неудачных миграциях и пересчитывает checksums уже применённых файлов. Он **не откатывает** SQL, который успел выполниться, и **не исправляет** данные. Если миграция упала после `CREATE TABLE`, таблица может остаться в базе — её нужно привести в порядок вручную или новой миграцией. После `repair` команда `migrate` снова попытается применить тот же файл; поэтому файл должен быть исправлен (или удалён, если выпущена корректирующая миграция).
 
 ---
 

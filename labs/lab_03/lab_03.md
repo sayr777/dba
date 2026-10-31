@@ -138,7 +138,7 @@ SELECT pg_reload_conf();
 ### 3.2. Снять физическую копию
 
 ```powershell
-& "$pg\pg_basebackup.exe" -h localhost -U repl_user -D C:\backup\eshop\basebackup\ -Fp -Xs -P
+& "$pg\pg_basebackup.exe" -h 127.0.0.1 -U repl_user -D C:\backup\eshop\basebackup\ -Fp -Xs -P
 # Директория basebackup\ должна НЕ существовать — pg_basebackup создаёт её сам.
 # Если папка уже есть: Remove-Item -Recurse -Force C:\backup\eshop\basebackup\
 ```
@@ -183,7 +183,7 @@ SELECT last_archived_wal, last_archived_time, failed_count
 FROM   pg_stat_archiver;
 ```
 
-Откройте папку `wal_archive/` — должен появиться файл с именем вида `00000001000000000000001`.
+Откройте папку `wal_archive/` — должен появиться файл с именем вида `000000010000000000000001` (24 шестнадцатеричных символа: 8 — timeline, 8 — логический сегмент, 8 — смещение).
 
 ---
 
@@ -191,12 +191,12 @@ FROM   pg_stat_archiver;
 
 Заполните таблицу регламента для `eshop`:
 
-| Уровень         | Команда              | Частота     | Хранить  | Папка / цель           |
-|-----------------|----------------------|-------------|----------|------------------------|
-| Физический      | pg_basebackup        | Ежедневно   | 7 дней   | `backup/basebackup/`   |
-| Логический      | pg_dump -Fc          | Ежедневно   | 14 дней  | `backup/eshop/`        |
-| WAL-архив       | archive_command      | Непрерывно  | 7 дней   | `backup/wal_archive/`  |
-| Глобальные роли | pg_dumpall --globals | Еженедельно | 4 недели | `backup/globals/`      |
+| Уровень           | Команда                | Частота       | Хранить    | Папка / цель             |
+| ----------------- | ---------------------- | ------------- | ---------- | ------------------------ |
+| Физический        | pg_basebackup          | Еженедельно   | 4 недели   | `backup/basebackup/`     |
+| Логический        | pg_dump -Fc            | Ежедневно     | 14 дней    | `backup/eshop/`          |
+| WAL-архив         | archive_command        | Непрерывно    | 7 дней     | `backup/wal_archive/`    |
+| Глобальные роли   | pg_dumpall --globals   | Еженедельно   | 4 недели   | `backup/globals/`        |
 
 Сохраните этот файл как `C:\backup\eshop\backup_policy.md`.
 

@@ -57,7 +57,7 @@ outOfOrder        = false   # disallow applying V003 before V002 is applied
 | `flyway info` | Show all migrations and their status |
 | `flyway migrate` | Apply all pending migrations |
 | `flyway validate` | Check all applied migrations still match their files (checksum) |
-| `flyway repair` | Mark a Failed migration as deleted so a fixed version can be applied |
+| `flyway repair` | Remove failed-migration rows and realign checksums; after that `migrate` re-runs the same version, so the file must be fixed or removed |
 | `flyway baseline` | Tell Flyway "everything up to version N is already done" |
 | `flyway clean` | **DROP EVERYTHING** — disabled by `cleanDisabled = true` |
 
