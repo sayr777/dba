@@ -26,32 +26,41 @@
 
 ### 1.1. Установить расширение
 
-> **Командная строка (PowerShell).** Установка выполняется через EDB Stack Builder; для перезапуска службы используйте PowerShell.
+> **Командная строка (PowerShell).** Для остановки и запуска службы используйте PowerShell от имени администратора. Наличие pgAudit в EDB Stack Builder не гарантируется; если пакета нет в списке, используйте отдельную Windows-сборку.
 
-**Установка pgAudit через EDB Stack Builder (Windows):**
+**Установка pgAudit для PostgreSQL 18 (Windows x64):**
 
-1. Пуск → **PostgreSQL 18** → **Application Stack Builder** (от имени администратора).
-2. Выберите сервер **PostgreSQL 18 on port 5432**.
-3. Раздел **Add-ons, tools and utilities** → установите флажок **pgAudit 18.x for PostgreSQL 18** (версия должна соответствовать мажорной версии PostgreSQL; `pgAudit 1.7` предназначен для PostgreSQL 15 и для PG 18 не подходит).
-4. Следуйте мастеру; после завершения установки закройте Stack Builder.
-
-> **Если Stack Builder недоступен.** На части учебных компьютеров загрузка через EDB блокируется (см. лаб. 07, установка PgBouncer). В этом случае возьмите офлайн-пакет `pgAudit 18.x for PostgreSQL 18` у преподавателя или установите его на машину заранее. Без файла `pgaudit.dll` в каталоге `lib` PostgreSQL команда `CREATE EXTENSION pgaudit` завершится ошибкой `could not open extension control file`.
-5. Проверьте текущее значение параметра (после lab_06 там уже `pg_stat_statements`):
-   ```sql
-   SHOW shared_preload_libraries;
+1. Откройте репозиторий [pgextwin/pgaudit — Windows-сборки pgAudit](https://github.com/pgextwin/pgaudit).
+2. На [странице релиза v18.0-windows.2](https://github.com/pgextwin/pgaudit/releases/tag/v18.0-windows.2) скачайте **[pgaudit-18.0-pg18-windows-x64.zip](https://github.com/pgextwin/pgaudit/releases/download/v18.0-windows.2/pgaudit-18.0-pg18-windows-x64.zip)** и файл `SHA256SUMS.txt`. Версия должна соответствовать мажорной версии PostgreSQL: `pgAudit 18.x` — для PostgreSQL 18, `pgAudit 1.7.x` — для PostgreSQL 15.
+   > **Важно:** это неофициальная сборка проекта `pgextwin`, а не пакет EDB или бинарный релиз разработчиков pgAudit. Используйте её на учебном стенде по согласованию с преподавателем. Перед установкой сделайте резервную копию БД и `postgresql.conf`.
+3. Проверьте SHA-256 архива и сравните с записью в `SHA256SUMS.txt`, затем распакуйте ZIP и прочитайте `PACKAGE-INFO.txt`:
+   ```powershell
+   Get-FileHash "$env:USERPROFILE\Downloads\pgaudit-18.0-pg18-windows-x64.zip" -Algorithm SHA256
    ```
-   В `postgresql.conf` **добавьте `pgaudit` через запятую** к существующему значению:
+4. Остановите службу и скопируйте содержимое каталогов архива в соответствующие каталоги PostgreSQL:
+   ```powershell
+   Stop-Service postgresql-x64-18
+   ```
+   ```text
+   lib\*              → C:\Program Files\PostgreSQL\18\lib\
+   share\extension\*  → C:\Program Files\PostgreSQL\18\share\extension\
+   ```
+   Нужны как `pgaudit.dll`, так и `pgaudit.control` и SQL-файлы расширения. Отсутствие control-файла вызывает ошибку `could not open extension control file`, а отсутствие или несовместимость DLL — ошибку загрузки библиотеки.
+   > **Если GitHub недоступен:** возьмите этот комплект файлов у преподавателя. Не добавляйте `pgaudit` в `shared_preload_libraries`, пока библиотека не установлена: иначе PostgreSQL может не запуститься.
+5. Проверьте текущее значение `shared_preload_libraries` в `postgresql.conf` (после lab_06 там уже `pg_stat_statements`). **Добавьте `pgaudit` через запятую** к существующему значению:
    ```ini
    shared_preload_libraries = 'pg_stat_statements,pgaudit'
    ```
    > **Важно:** не заменяйте всю строку — иначе потеряете `pg_stat_statements`.
-6. Перезапустите службу PostgreSQL (PowerShell от имени администратора):
+6. Запустите службу PostgreSQL (PowerShell от имени администратора):
    ```powershell
-   Restart-Service postgresql-x64-18
+   Start-Service postgresql-x64-18
    ```
+   Если служба не запускается из-за загрузки pgAudit, уберите только `pgaudit` из `shared_preload_libraries`, снова запустите службу и проверьте совместимость установленной сборки. Параметр `pgaudit.log` включайте только после создания расширения в следующем шаге.
+7. Переподключитесь к базе `eshop` под `postgres` и выполните:
 
 ```sql
--- После перезапуска — создать расширение
+-- После запуска — создать расширение
 CREATE EXTENSION IF NOT EXISTS pgaudit;
 
 -- Проверить
@@ -346,7 +355,9 @@ RESET ROLE;
 
 ## Ссылки
 
-- pgAudit: https://github.com/pgaudit/pgaudit
+- pgAudit (исходный проект): https://github.com/pgaudit/pgaudit
+- Неофициальные Windows x64-сборки pgAudit: https://github.com/pgextwin/pgaudit
+- Windows-релиз для установки в п. 1.1: https://github.com/pgextwin/pgaudit/releases/tag/v18.0-windows.2
 - pg_stat_ssl: https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-SSL-VIEW
 - pgcrypto: https://www.postgresql.org/docs/current/pgcrypto.html
 - 152-ФЗ (регулятор): https://pd.rkn.gov.ru/
