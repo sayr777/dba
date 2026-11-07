@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "56a4bc7572f696c0",
+        "id": "c2e5683aad16a870",
         "type": "tabs",
         "children": [
           {
-            "id": "fe84f511eb58f381",
+            "id": "53795f8169a53b43",
             "type": "leaf",
             "state": {
-              "type": "graph",
+              "type": "empty",
               "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Граф"
+              "icon": "lucide-file",
+              "title": "Новая вкладка"
             }
           }
         ]
@@ -184,8 +184,9 @@
       "bases:Создать новую базу": false
     }
   },
-  "active": "fe84f511eb58f381",
+  "active": "53795f8169a53b43",
   "lastOpenFiles": [
+    "cheatsheets/mermaid.md",
     "tools/pg-upgrade.md",
     "concepts/audit.md",
     "tools/pg-dump.md",
@@ -211,7 +212,6 @@
     "index.md",
     "concepts/access-control-models.md",
     "concepts/backup-recovery.md",
-    "cheatsheets/mermaid.md",
     "cheatsheets/markdown.md",
     "cheatsheets/git.md",
     "concepts/wal-mvcc.md",
