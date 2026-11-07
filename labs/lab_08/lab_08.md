@@ -31,8 +31,8 @@
 **Установка pgAudit для PostgreSQL 18 (Windows x64):**
 
 1. Откройте репозиторий [pgextwin/pgaudit — Windows-сборки pgAudit](https://github.com/pgextwin/pgaudit).
-2. На [странице релиза v18.0-windows.2](https://github.com/pgextwin/pgaudit/releases/tag/v18.0-windows.2) скачайте **[pgaudit-18.0-pg18-windows-x64.zip](https://github.com/pgextwin/pgaudit/releases/download/v18.0-windows.2/pgaudit-18.0-pg18-windows-x64.zip)** и файл `SHA256SUMS.txt`. Версия должна соответствовать мажорной версии PostgreSQL: `pgAudit 18.x` — для PostgreSQL 18, `pgAudit 1.7.x` — для PostgreSQL 15.
-   > **Важно:** это неофициальная сборка проекта `pgextwin`, а не пакет EDB или бинарный релиз разработчиков pgAudit. Используйте её на учебном стенде по согласованию с преподавателем. Перед установкой сделайте резервную копию БД и `postgresql.conf`.
+2. На [странице релиза v18.0-windows.2](https://github.com/pgextwin/pgaudit/releases/tag/v18.0-windows.2) скачайте **[pgaudit-18.0-pg18-windows-x64.zip](https://github.com/pgextwin/pgaudit/releases/download/v18.0-windows.2/pgaudit-18.0-pg18-windows-x64.zip)** и файл `SHA256SUMS.txt`. Версия должна соответствовать мажорной версии PostgreSQL: `pgAudit 18.x` — для PostgreSQL 18.
+   > **Важно:** это неофициальная сборка проекта `pgextwin`, а не пакет EDB или бинарный релиз разработчиков pgAudit. Перед установкой сделайте резервную копию БД и `postgresql.conf`.
 3. Проверьте SHA-256 архива и сравните с записью в `SHA256SUMS.txt`, затем распакуйте ZIP и прочитайте `PACKAGE-INFO.txt`:
    ```powershell
    Get-FileHash "$env:USERPROFILE\Downloads\pgaudit-18.0-pg18-windows-x64.zip" -Algorithm SHA256
