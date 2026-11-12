@@ -108,20 +108,44 @@ stateDiagram-v2
 1. Скачайте ZIP последнего релиза Flyway CLI с сайта Red Gate:  
    https://documentation.red-gate.com/flyway/reference/usage/command-line  
    (кнопка **Download** → Community → Windows ZIP)
-2. Распакуйте в `C:\tools\flyway-10` (или другой каталог без пробелов).
-3. Добавьте путь в `PATH` (PowerShell от имени администратора):
+2. Распакуйте архив, например в `C:\tools\flyway-10`. Убедитесь, что файл `flyway.cmd` находится **непосредственно** в этой папке: архив может содержать вложенную папку с номером версии. В командах ниже замените путь на фактическую папку с `flyway.cmd`.
+3. Добавьте путь в `PATH` одним из двух способов.
+
+   **Вариант A — только для текущего пользователя (без прав администратора):** в обычном PowerShell выполните:
+
    ```powershell
+   $flywayPath = 'C:\tools\flyway-10'  # папка с flyway.cmd
+   $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
    [Environment]::SetEnvironmentVariable(
-       "PATH",
-       [Environment]::GetEnvironmentVariable("PATH","Machine") + ";C:\tools\flyway-10",
-       "Machine"
+       'PATH',
+       (@($userPath, $flywayPath) | Where-Object { $_ }) -join ';',
+       'User'
    )
    ```
-4. Откройте **новое** окно PowerShell и проверьте:
+
+   **Вариант B — для всех пользователей:** откройте PowerShell через **«Запуск от имени администратора»** и выполните:
+
+   ```powershell
+   $flywayPath = 'C:\tools\flyway-10'  # папка с flyway.cmd
+   $machinePath = [Environment]::GetEnvironmentVariable('PATH', 'Machine')
+   [Environment]::SetEnvironmentVariable(
+       'PATH',
+       (@($machinePath, $flywayPath) | Where-Object { $_ }) -join ';',
+       'Machine'
+   )
+   ```
+
+   > **Ошибка «Запрошенный доступ к реестру запрещен».** Изменение `Machine`-переменной требует прав администратора. Запустите PowerShell от имени администратора либо используйте вариант A с областью `User`. Выберите один вариант; повторный запуск добавит путь ещё раз.
+
+4. Закройте PowerShell, откройте **новое** окно и проверьте:
    ```powershell
    flyway --version
    ```
-5. Ожидаемый вывод: `Flyway Community Edition 10.x.x` (в курсе проверена ветка 10.x). Если установилась версия 11 или новее, синтаксис `flyway.toml` и команды из этой работы сохраняются; при расхождениях сверяйтесь с [wiki/tools/flyway.md](../../wiki/tools/flyway.md).
+   Если команда не найдена, проверьте путь к `flyway.cmd` и убедитесь, что открыли новое окно. Проверить запуск без изменения `PATH` можно по полному пути:
+   ```powershell
+   & 'C:\tools\flyway-10\flyway.cmd' --version
+   ```
+5. Flyway выведет установленную версию. В курсе проверена ветка 10.x; для более новых версий при расхождениях сверяйтесь с [wiki/tools/flyway.md](../../wiki/tools/flyway.md).
 
 ### 1.2. Структура проекта
 
