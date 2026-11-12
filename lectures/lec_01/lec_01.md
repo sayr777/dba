@@ -536,7 +536,7 @@ erDiagram
 
 **Обязательно перед лаб. 01:**
 - Документация PostgreSQL — архитектура: https://www.postgresql.org/docs/current/overview.html
-- Процессы и память: https://www.postgresql.org/docs/current/processes.html
+- Процессы и память: https://www.postgresql.org/docs/current/connect-estab.html
 
 **Для углубления:**
 - ERD в Mermaid: https://mermaid.js.org/syntax/entityRelationshipDiagram.html

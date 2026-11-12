@@ -11,10 +11,14 @@
             "id": "53795f8169a53b43",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "schema.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Новая вкладка"
+              "title": "schema"
             }
           }
         ]
@@ -186,6 +190,7 @@
   },
   "active": "53795f8169a53b43",
   "lastOpenFiles": [
+    "README.md",
     "cheatsheets/mermaid.md",
     "tools/pg-upgrade.md",
     "concepts/audit.md",
@@ -202,7 +207,6 @@
     "lectures",
     "labs/lab_07.md",
     "labs",
-    "README.md",
     "concepts/n-plus-one.md",
     "index.md.tmp.16328.b0870e371cec",
     "concepts/normalization.md",

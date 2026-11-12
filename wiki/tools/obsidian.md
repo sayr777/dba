@@ -285,7 +285,7 @@ WHERE !contains(file.inlinks, "")
 
 ### Marp (презентации)
 
-**Репозиторий:** https://github.com/sabermi/obsidian-marp
+**Репозиторий:** https://github.com/samuele-cozzi/obsidian-marp-slides
 
 Рендерит wiki-страницы как слайды прямо в Obsidian. Для курса: берёшь `course/lectures-overview.md` или любую `concepts/` страницу и экспортируешь в PDF для показа на лекции.
 

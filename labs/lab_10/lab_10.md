@@ -336,7 +336,7 @@ flyway -configFiles=flyway.toml info
 
 ## Ссылки
 
-- Undo migrations: https://documentation.red-gate.com/fd/undo-migrations-184127461.html
-- ADD NOT NULL safely: https://www.depesz.com/2018/05/10/waiting-for-postgresql-11-fast-alter-table-add-column-with-a-non-null-default/
-- Zero-downtime рецепты: https://gist.github.com/jcoleman/1e6ad1bf8de454c166da94b67537758
+- Undo migrations: https://documentation.red-gate.com/flyway/flyway-concepts/migrations/undo-migrations
+- ADD NOT NULL safely: https://www.depesz.com/2018/04/04/waiting-for-postgresql-11-fast-alter-table-add-column-with-a-non-null-default/
+- Zero-downtime рецепты: https://github.com/ankane/strong_migrations
 - VACUUM FULL: https://www.postgresql.org/docs/current/sql-vacuum.html

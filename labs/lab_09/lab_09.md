@@ -45,7 +45,7 @@ stateDiagram-v2
 > **Командная строка (PowerShell).** Полная инструкция — [wiki/tools/flyway.md](../../wiki/tools/flyway.md). Краткие шаги:
 
 1. Скачайте ZIP последнего релиза Flyway CLI с сайта Red Gate:  
-   https://documentation.red-gate.com/fd/command-line-184127404.html  
+   https://documentation.red-gate.com/flyway/reference/usage/command-line  
    (кнопка **Download** → Community → Windows ZIP)
 2. Распакуйте в `C:\tools\flyway-10` (или другой каталог без пробелов).
 3. Добавьте путь в `PATH` (PowerShell от имени администратора):
@@ -361,6 +361,6 @@ WHERE  version = '3';
 ## Ссылки
 
 - Установка Flyway (Windows): [wiki/tools/flyway.md](../../wiki/tools/flyway.md)
-- Flyway CLI: https://documentation.red-gate.com/fd/command-line-184127404.html
-- flyway.toml: https://documentation.red-gate.com/fd/toml-configuration-reference-338067175.html
-- Naming convention: https://documentation.red-gate.com/fd/migrations-184127470.html
+- Flyway CLI: https://documentation.red-gate.com/flyway/reference/usage/command-line
+- flyway.toml: https://documentation.red-gate.com/flyway/reference/configuration
+- Naming convention: https://documentation.red-gate.com/flyway/flyway-concepts/migrations/versioned-migrations

@@ -452,11 +452,11 @@ pg_upgrade \
 
 ## Ссылки
 
-- Flyway undo: https://flywaydb.org/documentation/command/undo
+- Flyway undo: https://documentation.red-gate.com/flyway/reference/commands/undo
 - `pg_upgrade`: https://www.postgresql.org/docs/current/pgupgrade.html
 - `vacuumdb`: https://www.postgresql.org/docs/current/app-vacuumdb.html
 - `reindexdb`: https://www.postgresql.org/docs/current/app-reindexdb.html
-- Zero-downtime migrations: https://gist.github.com/jcoleman/1e6ad1bf8de454c166da94b67537758
+- Zero-downtime migrations: https://github.com/ankane/strong_migrations
 - pgvector: https://github.com/pgvector/pgvector
 
 **Wiki:**

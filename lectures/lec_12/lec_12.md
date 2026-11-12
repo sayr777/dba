@@ -414,9 +414,9 @@ Remove-Item Env:FLYWAY_PASSWORD
 
 ## Ссылки
 
-- Flyway: https://flywaydb.org/documentation
-- SQL Migrations: https://flywaydb.org/documentation/concepts/migrations#versioned-migrations
-- Flyway Configuration: https://flywaydb.org/documentation/configuration/configfile
+- Flyway: https://documentation.red-gate.com/flyway
+- SQL Migrations: https://documentation.red-gate.com/flyway/flyway-concepts/migrations/versioned-migrations
+- Flyway Configuration: https://documentation.red-gate.com/flyway/flyway-concepts/flyway-projects
 
 **Wiki:**
 - [Flyway](../../wiki/tools/flyway.md)

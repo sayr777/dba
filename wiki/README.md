@@ -304,7 +304,7 @@ qmd search "стратегии отката при ошибке миграции
 ### Marp — презентации из wiki
 
 **Сайт:** https://marp.app  
-**Obsidian-плагин:** https://github.com/sabermi/obsidian-marp  
+**Obsidian-плагин:** https://github.com/samuele-cozzi/obsidian-marp-slides  
 **Назначение:** Превращает Markdown-страницы wiki в слайды.
 
 Полезно для курса: можно взять wiki-страницу по теме лекции и экспортировать в PDF/HTML-презентацию без переписывания. Синтаксис — обычный Markdown с разделителем `---` между слайдами.

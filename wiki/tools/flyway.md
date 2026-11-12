@@ -5,7 +5,7 @@ Flyway is a database migration tool that versions SQL scripts and tracks their e
 ## Установка (Windows)
 
 1. Скачайте ZIP последнего релиза Flyway CLI Community Edition:  
-   https://documentation.red-gate.com/fd/command-line-184127404.html  
+   https://documentation.red-gate.com/flyway/reference/usage/command-line  
    (кнопка **Download** → Community → Windows ZIP)
 2. Распакуйте архив в каталог без пробелов, например `C:\tools\flyway-10`.
 3. Добавьте путь в системную переменную `PATH` (PowerShell от имени администратора):
