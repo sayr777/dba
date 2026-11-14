@@ -34,6 +34,7 @@
 | [Flyway](tools/flyway.md) | CLI migration tool: naming, commands, flyway.toml |
 | [pg_dump](tools/pg-dump.md) | Логический бэкап: форматы, флаги, выборочное восстановление |
 | [pg_basebackup](tools/pg-basebackup.md) | Физический бэкап кластера, standby, инкрементальные копии |
+| [pg_rewind](tools/pg-rewind.md) | Возврат старого primary в кластер после failover без полной копии |
 | [pg_upgrade](tools/pg-upgrade.md) | Обновление мажорной версии: --check, расширения, downtime |
 | [PgBouncer](tools/pgbouncer.md) | Connection pooler: install, pgbouncer.ini, userlist.txt |
 | [pgbench](tools/pgbench.md) | Нагрузочное тестирование: TPS, latency, валидация пула соединений |

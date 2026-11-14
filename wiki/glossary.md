@@ -120,6 +120,8 @@ Key terms for «Администрирование баз данных», alphab
 
 **pg_restore** — utility that restores a custom-format or directory-format dump created by pg_dump.
 
+**pg_rewind** — utility that synchronizes a former primary's `PGDATA` with the new primary after failover by copying only changed blocks; requires `wal_log_hints` or data checksums.
+
 **pg_stat_activity** — system view showing all current sessions: state, query, wait event, duration.
 
 **pg_stat_ssl** — system view showing which sessions use TLS, with protocol version and cipher.

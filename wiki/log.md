@@ -4,6 +4,14 @@ Append-only. Add new entries at the top.
 
 ---
 
+## [2026-11-14] add | tools/pg-rewind.md — возврат старого primary после failover
+
+- Создана страница `tools/pg-rewind.md`: назначение, точка расхождения timeline, обязательные условия (`wal_log_hints` / контрольные суммы), команда запуска и интеграция с Patroni.
+- Страница связана с `concepts/replication`, `concepts/high-availability`, `tools/patroni`, `tools/pg-basebackup`, `procedures/failover-runbook`.
+- Обновлены `index.md` (раздел Tools) и глоссарий.
+
+---
+
 ## [2026-10-31] style | Выравнивание Markdown-таблиц в лекциях и лабораторных
 
 - Все таблицы в `lectures/` и `labs/` переформатированы: ячейки выровнены по ширине столбцов, сохранены выравнивания (`:---`, `---:`, `:---:`).
