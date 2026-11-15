@@ -1,0 +1,24 @@
+# Статус миграций Flyway
+
+[Скопировать вывод команды `flyway info`]
+
+```
+$ flyway info
+
+# Ожидаемый результат:
+# All migrations: Applied/Success
+# No failed records
+```
+
+## Вывод flyway info
+
+```
+[вставить вывод]
+```
+
+## Проверка целостности
+
+- [ ] Все миграции Applied/Success
+- [ ] Нет failed записей
+- [ ] flyway_schema_history актуальна
+- [ ] Схема БД соответствует ожиданиям
