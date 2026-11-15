@@ -301,14 +301,14 @@ WAL-архивирование — это настройка, при котор�
 
 | Блок вопросов | Основные wiki-страницы |
 |---------------|------------------------|
-| А. Архитектура | [[../concepts/postgresql-architecture]], [[../concepts/wal-mvcc]] |
-| Б. Роли и доступ | [[../concepts/security]], [[../concepts/access-control-models]], [[../artifacts/access-matrix]] |
-| В. Бэкап / восстановление | [[../concepts/backup-recovery]], [[../artifacts/failover-runbook]] |
-| Г. Мониторинг | [[../concepts/monitoring]], [[../artifacts/db-health-report]], [[../artifacts/explain-analysis]] |
-| Д. Миграции | [[../tools/flyway]], [[../artifacts/migration-plan]], [[../procedures/rollback-strategies]], [[../procedures/zero-downtime]] |
-| Е. ИБ | [[../concepts/security]], [[../artifacts/security-checklist]] |
+| А. Архитектура | [[concepts/postgresql-architecture]], [[concepts/wal-mvcc]] |
+| Б. Роли и доступ | [[concepts/security]], [[concepts/access-control-models]], [[artifacts/access-matrix]] |
+| В. Бэкап / восстановление | [[concepts/backup-recovery]], [[artifacts/failover-runbook]] |
+| Г. Мониторинг | [[concepts/monitoring]], [[artifacts/db-health-report]], [[artifacts/explain-analysis]] |
+| Д. Миграции | [[tools/flyway]], [[artifacts/migration-plan]], [[procedures/rollback-strategies]], [[procedures/zero-downtime]] |
+| Е. ИБ | [[concepts/security]], [[artifacts/security-checklist]] |
 
 ---
 
-> **Источники:** [[../../docs/exam]] — банк из 23 вопросов, шкала оценок, критерии зачёта  
-> **Связанные страницы:** [[lectures-overview]], [[labs-overview]], [[eshop-schema]], [[../tools/obsidian]]
+> **Источники:** [[docs/exam]] — банк из 23 вопросов, шкала оценок, критерии зачёта
+> **Связанные страницы:** [[lectures-overview]], [[labs-overview]], [[eshop-schema]], [[tools/obsidian]]

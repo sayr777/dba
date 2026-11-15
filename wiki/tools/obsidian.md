@@ -153,7 +153,7 @@ flowchart LR
     class BACKUP,ARCH,PITR,FAILOVER normal
 ```
 
-Настройка графа уже сохранена в vault: **`showOrphans: true`** — изолированные страницы без входящих ссылок подсвечиваются. Именно это нужно для workflow [[../schema|Lint]].
+Настройка графа уже сохранена в vault: **`showOrphans: true`** — изолированные страницы без входящих ссылок подсвечиваются. Именно это нужно для workflow [[schema|Lint]].
 
 **Что искать в графе:**
 - Красные/изолированные точки — orphan-страницы, не связанные с остальными
@@ -379,4 +379,4 @@ Settings → Files & Links
 ---
 
 > **Связанные страницы:** [[../README|README — описание подхода LLM-wiki]], [[../schema|schema.md — инструкция для LLM]], [[../cheatsheets/mermaid|Mermaid шпаргалка]], [[../cheatsheets/git|Git шпаргалка]]  
-> **Инструменты:** [[flyway]], [[pgbadger]], [[pgbouncer]], [[dbeaver]]
+> **Инструменты:** [[flyway]], [[pgbadger]], [[pgbouncer]], [[dbeaver]], [[psql]], [[pg-dump]], [[pg-basebackup]]         

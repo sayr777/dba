@@ -140,7 +140,7 @@ flowchart LR
 | 3   | — | Согласует окно с бизнесом, добавляет в спринт с буфером |
 | 4   | Пишет Migration Plan с rollback-сценарием | Согласует план, фиксирует go/no-go критерии |
 
-**Артефакт:** [[../artifacts/migration-plan|Migration Plan]]
+**Артефакт:** [[artifacts/migration-plan|Migration Plan]]
 
 ---
 
@@ -225,7 +225,7 @@ flowchart LR
 | 3   | SA пишет naming-конвенцию для SQL-файлов: `V<version>__<description>.sql` | — |
 | 4   | — | Устанавливает секрет `FLYWAY_URL` в GitHub Secrets, SA проверяет что в staging используется не prod-база |
 
-**Артефакт:** [[../artifacts/deployment-runbook|Deployment Runbook]]
+**Артефакт:** [[artifacts/deployment-runbook|Deployment Runbook]]
 
 ---
 
@@ -267,7 +267,7 @@ flowchart LR
 
 > **Связанные страницы:**
 > [[dba-vs-sa|DBA vs SA — матрица ответственности по темам курса]] ·
-> [[../artifacts/access-matrix|Access Matrix]] ·
-> [[../artifacts/migration-plan|Migration Plan]] ·
-> [[../artifacts/deployment-runbook|Deployment Runbook]] ·
-> [[../course/eshop-schema|eshop Schema — ERD проекта]]
+> [[artifacts/access-matrix|Access Matrix]] ·
+> [[artifacts/migration-plan|Migration Plan]] ·
+> [[artifacts/deployment-runbook|Deployment Runbook]] ·
+> [[course/eshop-schema|eshop Schema — ERD проекта]]
