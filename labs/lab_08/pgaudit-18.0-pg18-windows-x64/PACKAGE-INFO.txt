@@ -1,0 +1,15 @@
+pgAudit Windows binary package
+==============================
+
+Upstream repository: pgaudit/pgaudit
+Upstream ref:        18.0
+Upstream commit:     f39f8dbb15dc5bd4cbe5f1e5abe0d930ed7593a8
+pgAudit version:     18.0
+PostgreSQL major:    18
+PostgreSQL tested:   18.6
+Architecture:        Windows x64
+Compiler:            MSVC
+License:             PostgreSQL license; see LICENSE
+
+This is an unofficial pgextwin Windows package built from the official pgAudit source.
+pgAudit must be loaded through shared_preload_libraries before CREATE EXTENSION.
