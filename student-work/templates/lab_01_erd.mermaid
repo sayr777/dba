@@ -1,0 +1,93 @@
+# ERD диаграмма chinook
+
+```mermaid
+erDiagram
+    ARTISTS {
+        int ArtistId PK
+        string LastName
+        string FirstName
+    }
+    ALBUMS {
+        int AlbumId PK
+        string Title
+        int ArtistId FK
+    }
+    TRACKS {
+        int TrackId PK
+        string Name
+        int AlbumId FK
+        int MediaTypeId FK
+        int GenreId FK
+        int Composer
+        int Milliseconds
+        int Bytes
+        float UnitPrice
+    }
+    MEDIA_TYPES {
+        int MediaTypeId PK
+        string Name
+    }
+    GENRES {
+        int GenreId PK
+        string Name
+    }
+    CUSTOMERS {
+        int CustomerId PK
+        string FirstName
+        string LastName
+        string Company
+        string Address
+        string City
+        string State
+        string Country
+        string PostalCode
+        string Phone
+        string Fax
+        string Email
+        int SupportRepId FK
+    }
+    EMPLOYEES {
+        int EmployeeId PK
+        string LastName
+        string FirstName
+        string Title
+        int ReportsTo FK
+        string BirthDate
+        string HireDate
+        string Address
+        string City
+        string State
+        string Country
+        string PostalCode
+        string Phone
+        string Fax
+        string Email
+    }
+    INVOICES {
+        int InvoiceId PK
+        int CustomerId FK
+        datetime InvoiceDate
+        string BillingAddress
+        string BillingCity
+        string BillingState
+        string BillingCountry
+        float BillingPostalCode
+        float Total
+    }
+    INVOICE_ITEMS {
+        int InvoiceId PK, FK
+        int TrackId PK, FK
+        float UnitPrice
+        int Quantity
+    }
+
+    ARTISTS ||--o{ ALBUMS : has
+    ALBUMS ||--o{ TRACKS : contains
+    TRACKS }o--|| MEDIA_TYPES : type
+    TRACKS }o--|| GENRES : genre
+    CUSTOMERS ||--o{ INVOICES : receives
+    INVOICES ||--o{ INVOICE_ITEMS : contains
+    TRACKS ||--o{ INVOICE_ITEMS : included_in
+    EMPLOYEES ||--o{ EMPLOYEES : manages
+    EMPLOYEES ||--o{ CUSTOMERS : supports
+```

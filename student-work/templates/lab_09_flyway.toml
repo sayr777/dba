@@ -1,0 +1,11 @@
+# Конфигурация Flyway
+
+```toml
+flyway.url = "jdbc:postgresql://localhost:5432/eshop"
+flyway.user = "postgres"
+flyway.password = ""
+flyway.locations = ["filesystem:migrations"]
+flyway.cleanDisabled = true
+flyway.baselineOnMigrate = true
+flyway.baselineVersion = "1"
+```
