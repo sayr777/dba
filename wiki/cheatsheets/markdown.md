@@ -215,4 +215,4 @@ paginate: true
 
 ---
 
-> **Связанные страницы:** [[mermaid|Mermaid шпаргалка]] · [[git|Git шпаргалка]] · [[../tools/obsidian|Obsidian — настройка vault]]
+> **Связанные страницы:** [[mermaid|Mermaid шпаргалка]] · [[git|Git шпаргалка]] · [[tools/obsidian|Obsidian — настройка vault]]

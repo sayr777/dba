@@ -179,5 +179,5 @@ erDiagram
 
 ---
 
-> **Связанные страницы:** [[access-control-models]] · [[../course/eshop-schema|eshop Schema]] · [[../artifacts/access-matrix|Access Matrix]]  
-> **Источники:** [[../lectures/lec_01]], [[../lectures/lec_02]]
+> **Связанные страницы:** [[access-control-models]] · [[course/eshop-schema|eshop Schema]] · [[artifacts/access-matrix|Access Matrix]]
+> **Источники:** [[lectures/lec_01]], [[lectures/lec_02]]

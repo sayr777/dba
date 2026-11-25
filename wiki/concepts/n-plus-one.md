@@ -110,5 +110,5 @@ WHERE  tablename = 'order_items' AND indexdef ILIKE '%order_id%';
 
 ---
 
-> **Связанные страницы:** [[monitoring]] · [[indexes]] · [[../artifacts/explain-analysis|EXPLAIN Analysis]]  
-> **Источники:** [[../lectures/lec_08]]
+> **Связанные страницы:** [[monitoring]] · [[indexes]] · [[artifacts/explain-analysis|EXPLAIN Analysis]]
+> **Источники:** [[lectures/lec_08]]

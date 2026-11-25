@@ -144,4 +144,4 @@ ORDER  BY xid_age DESC;
 ---
 
 > **Связанные страницы:** [[wal-mvcc]] · [[monitoring]] · [[indexes]]  
-> **Источники:** [[../lectures/lec_05]], [[../lectures/lec_08]]
+> **Источники:** [[lectures/lec_05]], [[lectures/lec_08]]
