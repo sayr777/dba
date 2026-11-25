@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "schema.md",
+                "file": "course/lectures-overview.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "schema"
+              "title": "lectures-overview"
             }
           }
         ]
@@ -190,6 +190,9 @@
   },
   "active": "53795f8169a53b43",
   "lastOpenFiles": [
+    "glossary.md",
+    "concepts/security.md",
+    "schema.md",
     "README.md",
     "cheatsheets/mermaid.md",
     "tools/pg-upgrade.md",
@@ -211,17 +214,14 @@
     "index.md.tmp.16328.b0870e371cec",
     "concepts/normalization.md",
     "concepts/normalization.md.tmp.16328.06c13c17ae74",
-    "schema.md",
     "log.md",
     "index.md",
     "concepts/access-control-models.md",
     "concepts/backup-recovery.md",
     "cheatsheets/markdown.md",
     "cheatsheets/git.md",
-    "concepts/wal-mvcc.md",
     "concepts/wal-mvcc.md.tmp.16328.3194a96b181c",
     "concepts/security.md.tmp.16328.ad99a4f66812",
-    "concepts/security.md",
     "concepts/replication.md.tmp.16328.f8392e30c8ae",
     "log.md.tmp.16328.024db00cdd68",
     "artifacts/db-health-report.md.tmp.16328.9a0234510747",
