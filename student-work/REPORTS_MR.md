@@ -9,10 +9,10 @@
 3. создадите отдельную ветку для своего доклада;
 4. добавите файл доклада;
 5. отправите ветку в GitVerse;
-6. создадите Merge Request в ветку `main`.
+6. создадите Merge Request в ветку `master`.
 
 > Все команды ниже выполняются в **Git Bash**. В примерах используются данные
-> студента Петрова Петра из группы Пи з-42, тема №5. Замените их своими.
+> студента Петрова Петра из группы ПИ-42, тема №5. Замените их своими.
 
 ## Что понадобится
 
@@ -34,18 +34,26 @@ https://gitverse.ru/sayr/dba
 2. Скачайте установщик **Git for Windows** для вашей системы. Для большинства
    современных компьютеров подходит **64-bit Git for Windows Setup**.
 3. Запустите скачанный файл.
-4. В мастере установки можно оставить значения по умолчанию. Обратите внимание
-   на следующие пункты:
+4. Большинство настроек мастера можно оставить без изменения. На перечисленных
+   ниже экранах выберите указанные варианты (названия приведены так, как они
+   отображаются в установщике):
 
-| Пункт установки | Рекомендуемый вариант |
+| Экран установки | Рекомендуемый вариант |
 |---|---|
-| Default editor | Ваш редактор или Vim по умолчанию |
-| Initial branch name | `main` |
-| PATH environment | **Git from the command line and also from 3rd-party software** |
-| HTTPS transport backend | **Use the OpenSSL library** |
-| Line endings | **Checkout Windows-style, commit Unix-style line endings** |
-| Terminal emulator | **Use MinTTY** |
-| Credential helper | **Git Credential Manager** |
+| Choosing the default editor | **Use the Nano editor by default**; если уже установлен VS Code — можно выбрать **Use Visual Studio Code as Git's default editor** |
+| Adjusting the name of the initial branch | **Let Git decide** |
+| Adjusting your PATH environment | **Git from the command line and also from 3rd-party software** |
+| Choosing the SSH executable | **Use bundled OpenSSH** |
+| Choosing HTTPS transport backend | **Use the native Windows Secure Channel library** |
+| Configuring the line ending conversions | **Checkout Windows-style, commit Unix-style line endings** |
+| Configuring the terminal emulator | **Use MinTTY (the default terminal of MSYS2)** |
+| Choose the default behavior of `git pull` | **Fast-forward only** |
+| Choose a credential helper | **Git Credential Manager** |
+
+> Не выбирайте Vim, если раньше с ним не работали: выход из редактора и
+> сохранение файла могут вызвать затруднения. Windows Secure Channel использует
+> системное хранилище сертификатов Windows и подходит для подключения к
+> GitVerse по HTTPS.
 
 5. Завершите установку и откройте **Git Bash** через меню «Пуск».
 6. Проверьте установку:
@@ -117,18 +125,18 @@ cd dba
 git status
 ```
 
-Git должен показать ветку `main` и сообщение об отсутствии изменений.
+Git должен показать ветку `master` и сообщение об отсутствии изменений.
 
 > Репозиторий клонируется только один раз. Если папка `dba` уже существует,
 > повторять `git clone` не нужно — откройте Git Bash в этой папке.
 
-## 4. Обновите ветку `main`
+## 4. Обновите ветку `master`
 
 Перед созданием своей ветки получите последнюю версию курса:
 
 ```bash
-git switch main
-git pull --ff-only origin main
+git switch master
+git pull --ff-only origin master
 ```
 
 ## 5. Создайте отдельную ветку
@@ -139,10 +147,10 @@ git pull --ff-only origin main
 report/<группа-латиницей>-<фамилия-латиницей>-<номер-темы>
 ```
 
-Пример для Пи з-42, Петрова, темы №5:
+Пример для ПИ-42, Петрова, темы №5:
 
 ```bash
-git switch -c report/pi-z-42-petrov-05
+git switch -c report/pi-42-petrov-05
 ```
 
 Другие примеры:
@@ -159,7 +167,7 @@ report/pi-43-sidorova-27
 git branch --show-current
 ```
 
-Команда должна вывести имя вашей новой ветки, а не `main`.
+Команда должна вывести имя вашей новой ветки, а не `master`.
 
 ## 6. Добавьте файл доклада
 
@@ -172,7 +180,7 @@ student-work/reports/<группа>/
 Доступные папки:
 
 - `Пи 41`, `Пи 42`, `Пи 43`;
-- `Пи з-41`, `Пи з-42`, `Пи з-43`.
+- `Пи з-41`, `ПИ-42`, `Пи з-43`.
 
 Имя файла:
 
@@ -189,7 +197,7 @@ report_NN_фамилия.md
 Пример:
 
 ```text
-student-work/reports/Пи з-42/report_05_petrov.md
+student-work/reports/ПИ-42/report_05_petrov.md
 ```
 
 Откройте папку репозитория в Проводнике:
@@ -202,7 +210,7 @@ explorer .
 также создать файл из Git Bash:
 
 ```bash
-notepad "student-work/reports/Пи з-42/report_05_petrov.md"
+notepad "student-work/reports/ПИ-42/report_05_petrov.md"
 ```
 
 Сохраните текст в кодировке UTF-8. Убедитесь, что Windows не добавила скрытое
@@ -222,7 +230,7 @@ git status
 В списке должен быть только ваш файл. Например:
 
 ```text
-student-work/reports/Пи з-42/report_05_petrov.md
+student-work/reports/ПИ-42/report_05_petrov.md
 ```
 
 Не добавляйте и не изменяйте файлы других студентов.
@@ -232,7 +240,7 @@ student-work/reports/Пи з-42/report_05_petrov.md
 Добавляйте конкретный файл, а не весь репозиторий:
 
 ```bash
-git add "student-work/reports/Пи з-42/report_05_petrov.md"
+git add "student-work/reports/ПИ-42/report_05_petrov.md"
 ```
 
 Проверьте, что будет включено в коммит:
@@ -245,7 +253,7 @@ git diff --cached
 Создайте коммит:
 
 ```bash
-git commit -m "Доклад №5 — Пи з-42 — Петров П.П."
+git commit -m "Доклад №5 — ПИ-42 — Петров П.П."
 ```
 
 Если Git сообщает `nothing to commit`, файл не был изменён или не был добавлен
@@ -256,7 +264,7 @@ git commit -m "Доклад №5 — Пи з-42 — Петров П.П."
 Отправьте свою текущую ветку:
 
 ```bash
-git push -u origin report/pi-z-42-petrov-05
+git push -u origin report/pi-42-petrov-05
 ```
 
 Замените имя ветки на своё.
@@ -277,8 +285,8 @@ GitVerse. Войдите под своей учётной записью. Есл
    новой ветки. Нажмите её. Если подсказки нет, откройте раздел
    **Merge Requests** и нажмите **New Merge Request** / **Создать Merge Request**.
 3. В поле исходной ветки выберите свою ветку, например
-   `report/pi-z-42-petrov-05`.
-4. В поле целевой ветки выберите `main`.
+   `report/pi-42-petrov-05`.
+4. В поле целевой ветки выберите `master`.
 5. Убедитесь, что в изменениях присутствует только ваш доклад.
 6. Заполните заголовок и описание.
 7. Нажмите **Create Merge Request** / **Создать Merge Request**.
@@ -287,16 +295,16 @@ GitVerse. Войдите под своей учётной записью. Есл
 Пример заголовка:
 
 ```text
-Доклад №5 — Пи з-42 — Петров П.П. — TimescaleDB
+Доклад №5 — ПИ-42 — Петров П.П. — TimescaleDB
 ```
 
 Пример описания:
 
 ```text
-Группа: Пи з-42
+Группа: ПИ-42
 Студент: Петров Петр Петрович
 Доклад: №5 — TimescaleDB: временные ряды в PostgreSQL
-Файл: student-work/reports/Пи з-42/report_05_petrov.md
+Файл: student-work/reports/ПИ-42/report_05_petrov.md
 Вариант: только доклад
 ```
 
@@ -311,7 +319,7 @@ GitVerse. Войдите под своей учётной записью. Есл
 файл и выполните:
 
 ```bash
-git add "student-work/reports/Пи з-42/report_05_petrov.md"
+git add "student-work/reports/ПИ-42/report_05_petrov.md"
 git commit -m "Исправлен доклад №5 по замечаниям"
 git push
 ```
@@ -322,11 +330,11 @@ git push
 
 Перед отправкой ссылки преподавателю убедитесь, что:
 
-- [ ] ветка создана от актуальной `main`;
+- [ ] ветка создана от актуальной `master`;
 - [ ] имя ветки содержит вашу группу, фамилию и номер темы;
 - [ ] файл находится в папке вашей группы;
 - [ ] файл назван `report_NN_фамилия.md`;
 - [ ] в MR нет чужих или служебных файлов;
-- [ ] исходная ветка MR — ваша, целевая — `main`;
+- [ ] исходная ветка MR — ваша, целевая — `master`;
 - [ ] Markdown и диаграммы отображаются без ошибок;
 - [ ] в MR заполнены группа, Ф. И. О., номер и название темы.
